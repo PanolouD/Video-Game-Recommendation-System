@@ -1,40 +1,52 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request , HTTPException, status, Depends
+from fastapi.exceptions import RequestValidationError #αυτό είναι για να χειριζόμαστε τα validation errors(πχ βαζουμε καπου string αντι για αριθμο που ζηταει).
+#from fastapi.responses import JSONResponse #αυτο το χρησιμοποιούμε για να μπορούμε να επιστρέψουμε manually JSON responses από τον exception handler μας. 
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from typing import Annotated
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+import models
+from database import engine, get_db
+from contextlib import asynccontextmanager
+from fastapi.exception_handlers import http_exception_handler, request_validation_exception_handler
+from routers import users, games
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    yield#Από έδω όντως τρέχει το application μας.
+    #shutdown
+    await engine.dispose()
+
+app = FastAPI(lifespan=lifespan)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-templates = Jinja2Templates(directory="templates")
+app.mount("/media", StaticFiles(directory="media"), name="media")
 
-posts: list[dict] = [
-    {
-        "id": 1,
-        "author": "Corey Schafer",
-        "title": "FastAPI is Awesome",
-        "content": "This framework is really easy to use and super fast.",
-        "date_posted": "April 20, 2025",
-    },
-    {
-        "id": 2,
-        "author": "Jane Doe",
-        "title": "Python is Great for Web Development",
-        "content": "Python is a great language for web development, and FastAPI makes it even better.",
-        "date_posted": "April 21, 2025",
-    },
-]
+##templates = Jinja2Templates(directory="templates")
 
-@app.get("/", include_in_schema=False, name="home") #Το include_in_schema όταν είναι false δεν εμφανιζει τα pageroutes που το βαζουμε στο api documentation.
-@app.get("/posts", include_in_schema=False, name="posts")
-def home(request: Request):
-    return templates.TemplateResponse(
-        request, 
-        "home.html", 
-        {"posts": posts, "title": "Home"},
-        ) #Εδώ παιρνάμε την list posts στο template μας και το template έχει πρόσβαση σε οτιδήποτε είναι μέσα στο dictionary αυτό. 
+app.include_router(users.router, prefix="/api/users", tags=["users"])
 
-@app.get("/api/posts")
-def get_posts():
-    return posts
+app.include_router(games.router, prefix="/api/games", tags=["games"])
+
+## StarletteHTTPException Handler
+@app.exception_handler(StarletteHTTPException)
+async def general_http_exception_handler(request: Request, exception: StarletteHTTPException):
+
+    if request.url.path.startswith("/api"):
+        return await http_exception_handler(request,exception)
+    message = (
+        exception.detail
+        if exception.detail
+        else "An error occurred. Please check your request and try again."
+    )
+
+### RequestValidationError Handler
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exception: RequestValidationError):
+    if request.url.path.startswith("/api"):
+        return await request_validation_exception_handler(request,exception)
