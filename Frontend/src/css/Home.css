@@ -1,0 +1,32 @@
+.home-search {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.home-search h1 {
+    font-size: 42px;
+    margin-bottom: 15px;
+}
+
+.search-bar {
+    width: 100%;
+    max-width: 500px;
+    padding: 12px 16px;
+    font-size: 16px;
+}
+
+.popular-games {
+    padding: 40px;
+}
+
+.popular-games h2 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.game-grid {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    flex-wrap: wrap;
+}
