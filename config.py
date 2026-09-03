@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     mail_from: str = "noreply@example.com"
     mail_use_tls: bool = True
 
-    frontend_url: str = "http://localhost:8000"
+    frontend_url: str = "http://localhost:3000"
 
 
 settings = Settings() #Loaded from .env file

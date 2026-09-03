@@ -1,20 +1,47 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import "../css/auth.css"
 
 function SignUp() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   
   const navigate = useNavigate();
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
+    setError("");
 
-    const user = { username, email, password };
-    localStorage.setItem("user", JSON.stringify(user)); //Για αρχή μέχρι να μπει το backend
+    try{
+        const response = await fetch("http://localhost:8000/api/users",{
+          
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            username: username,
+            email: email,
+            password: password,
+          }),
 
-    navigate("/login");
+        });
+
+        const data = await response.json();
+
+        if(!response.ok){
+          console.log(data);
+          setError("Could not create account.");
+          return;
+        }
+      
+        navigate("/login");
+    } catch (error){
+      console.log(error);
+      setError("Could not connect to the server.");
+    }  
   }
 
   return (
@@ -25,7 +52,7 @@ function SignUp() {
           <h1>Create Account</h1>
 
                 <p className="auth-subtitle"> Create your profile and get personalized game recommendations.</p>
-
+                {error && <p className="auth-error">{error}</p>} {/* Αν υπαρχει error εμφανιζεται το error */}
           <form className="auth-form" onSubmit={handleSubmit}>
 
             <div className="auth-field">
@@ -33,6 +60,7 @@ function SignUp() {
               <input
                 id="username"
                 type="text"
+                required
                 placeholder="Choose a username"
                 value={username}
                 autoComplete="username"
@@ -59,6 +87,7 @@ function SignUp() {
                 id="password"
                 type="password"
                 required
+                minLength={8}
                 placeholder="Password"
                 value={password}
                 autoComplete="new-password"

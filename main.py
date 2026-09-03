@@ -14,6 +14,8 @@ from database import engine, get_db
 from contextlib import asynccontextmanager
 from fastapi.exception_handlers import http_exception_handler, request_validation_exception_handler
 from routers import users, games
+from fastapi.middleware.cors import CORSMiddleware
+from config import settings
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
@@ -22,6 +24,14 @@ async def lifespan(_app: FastAPI):
     await engine.dispose()
 
 app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware, # Περιλαμβανει HTTP request/responses για να επικοινωνει ο browser
+    allow_origins=[settings.frontend_url], #Επιτρεπει στο Frontend Που τρεχει στο Post 3000 να κανει request εδω
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
