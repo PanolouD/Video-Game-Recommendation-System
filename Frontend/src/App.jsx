@@ -3,7 +3,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import Questionnaire from "./pages/Questionnaire";
-import Results from "./pages/Results";
+import Recommendations from "./pages/Recommendations";
 import Library from "./pages/Library";
 
 import NavBar from "./components/NavBar";
@@ -21,7 +21,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/questionnaire" element={<Questionnaire />} />
-        <Route path="/results" element={<Results />} />
+        <Route path="/recommendations" element={<Recommendations />} />
         <Route path="/library" element={<Library />} />
       </Routes>
     </BrowserRouter>
