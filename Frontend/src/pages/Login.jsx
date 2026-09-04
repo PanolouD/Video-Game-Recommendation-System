@@ -10,35 +10,48 @@ function Login() {
   
   const navigate = useNavigate(); //μπορούμε να αλλάζουμε σελίδα
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault(); //Σταματάει το refresh της σελίδας
+    setError("");
 
-    // Παίρνουμε τον χρήστη από το localStorage
-    const storedUser = JSON.parse(localStorage.getItem("user")); //Προσωρινό όσο δεν έχουμε ακόμα το backend
+      try{
 
-      // Ελέγχουμε αν υπάρχει και αν τα στοιχεία ταιριάζουν
-      if (!storedUser) {
-        setError("Δεν υπάρχει λογαριασμός. Κάνε Sign Up πρώτα!");
-        return;
-      }
+        const formData = new URLSearchParams();
+        formData.append("username", email);
+        formData.append("password", password);
 
-      if (storedUser.email !== email || storedUser.password !== password) {
-        setError("Λάθος email ή password!");
-        return;
-      }
+        //Κανουμε HTTP request στοο backend
+        const response = await fetch("http://localhost:8000/api/users/token", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: formData,
+        });
 
-      // Αποθηκεύουμε ότι ο χρήστης είναι logged in
-      localStorage.setItem("loggedIn", "true");
+        const data = await response.json(); //παιρνουμε το body της απαντησης
 
-      // Redirect στο Questionnaire
-      navigate("/questionnaire");
+        if(!response.ok){
+          console.log(data);
+          setError("Λάθος email ή Κωδικός");
+          return;
+        }
+
+        localStorage.setItem("accessToken", data.access_token); //Αποθηκευση του JWT access token  
+
+          // Redirect στο Questionnaire
+          navigate("/questionnaire");
+        } catch(error){
+          console.log(error);
+          setError("Could not connect to the server.")
+        }    
   }
 
   return (
     <main className="auth-page">
         <div className="auth-card">
 
-          <h1>Welcome Backkk</h1>
+          <h1>Welcome Backk</h1>
           <p className="auth-subtitle"> Log in to continue discovering games.</p>
 
           <form className="auth-form" onSubmit={handleSubmit}>
