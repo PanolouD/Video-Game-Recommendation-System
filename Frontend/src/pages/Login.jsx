@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {FaEye, FaEyeSlash} from "react-icons/fa";
+import {loginUser} from "../services/api";
 import "../css/auth.css"
 
 //Κρατάμε τις πληροφορίες του χρήστη
@@ -16,37 +17,25 @@ function Login() {
     e.preventDefault(); //Σταματάει το refresh της σελίδας
     setError("");
 
-      try{
+    try{
 
-        const formData = new URLSearchParams();
-        formData.append("username", email);
-        formData.append("password", password);
+      const data = await loginUser(email, password);
 
-        //Κανουμε HTTP request στοο backend
-        const response = await fetch("http://localhost:8000/api/users/token", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: formData,
-        });
 
-        const data = await response.json(); //παιρνουμε το body της απαντησης
+      localStorage.setItem("accessToken", data.access_token); //Αποθηκευση του JWT access token  
 
-        if(!response.ok){
-          console.log(data);
-          setError("Λάθος email ή Κωδικός");
-          return;
-        }
-
-        localStorage.setItem("accessToken", data.access_token); //Αποθηκευση του JWT access token  
-
-          // Redirect στο Questionnaire
-          navigate("/questionnaire");
-        } catch(error){
-          console.log(error);
-          setError("Could not connect to the server.")
-        }    
+      // Redirect στο Questionnaire
+      navigate("/questionnaire");
+    } catch(error){
+        console.log(error);
+        if (error.status === 401) {
+        setError("Λάθος email ή κωδικός.");
+        } else if (error.status) {
+          setError(error.message);
+        } else {
+          setError("Could not connect to the server.");
+        }   
+      }    
   }
 
   return (
