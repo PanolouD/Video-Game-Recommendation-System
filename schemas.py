@@ -72,3 +72,16 @@ class UserQuestionnaireCreate(UserPreferenceBase):
 
 class UserQuestionnaireResponse(UserQuestionnaireCreate):
     pass
+
+class RecommendationRequest(BaseModel):
+    platforms: list[str]
+    genres: list[str]
+    release_preference: str
+    rating_preference: str
+    top_n: int = Field(default=10)
+
+class RecommendationResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    game: GameResponse
+    score: float

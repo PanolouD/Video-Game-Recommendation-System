@@ -13,7 +13,7 @@ import models
 from database import engine, get_db
 from contextlib import asynccontextmanager
 from fastapi.exception_handlers import http_exception_handler, request_validation_exception_handler
-from routers import users, games
+from routers import users, games, recommendations
 from fastapi.middleware.cors import CORSMiddleware
 from config import settings
 
@@ -42,6 +42,8 @@ app.mount("/media", StaticFiles(directory="media"), name="media")
 app.include_router(users.router, prefix="/api/users", tags=["users"])
 
 app.include_router(games.router, prefix="/api/games", tags=["games"])
+
+app.include_router(recommendations.router, prefix="/api/recommendations", tags=["recommendations"])
 
 ## StarletteHTTPException Handler
 @app.exception_handler(StarletteHTTPException)
