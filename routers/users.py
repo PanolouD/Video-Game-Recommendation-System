@@ -6,8 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlalchemy import delete as sql_delete
 import models
+import json
 from database import get_db
-from schemas import UserCreate, UserUpdate, UserPrivate, UserPublic, Token, ChangePasswordRequest, ForgotPasswordRequest, ResetPasswordRequest, UserQuestionnaireCreate, UserQuestionnaireResponse
+from schemas import UserCreate, UserUpdate, UserPrivate, UserPublic, Token, ChangePasswordRequest, ForgotPasswordRequest, ResetPasswordRequest, UserPreferenceBase
 from datetime import timedelta, UTC, datetime
 from fastapi.security import OAuth2PasswordRequestForm
 from auth import create_access_token, hash_password, verify_password, CurrentUser, generate_reset_token, hash_reset_token
@@ -377,108 +378,55 @@ async def delete_user_picture(
     return current_user 
 
 @router.post("/me/questionnaire")
-async def save_user_preference(questionnaire: UserQuestionnaireCreate, current_user: CurrentUser, db: Annotated[AsyncSession, Depends(get_db)],):
-    result = await db.execute(select(models.UserPreference).where(models.UserPreference.user_id == current_user.id))
+async def save_user_preference(
+    questionnaire: UserPreferenceBase,
+    current_user: CurrentUser,
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    result = await db.execute(
+        select(models.UserPreference)
+        .where(models.UserPreference.user_id == current_user.id)
+    )
     user_preference = result.scalars().first()
+    
     if user_preference is None:
         user_preference = models.UserPreference(
-            user_id = current_user.id,
-            release_preference = questionnaire.release_preference,
-            rating_preference = questionnaire.rating_preference,
+            user_id=current_user.id,
+            preferred_genres=json.dumps(questionnaire.preferred_genres or []),
+            preferred_platforms=json.dumps(questionnaire.preferred_platforms or []),
+            preferred_game_modes=json.dumps(questionnaire.preferred_game_modes or []),
+            preferred_player_perspectives=json.dumps(questionnaire.preferred_player_perspectives or []),
         )
         db.add(user_preference)
     else:
-        user_preference.release_preference = (
-            questionnaire.release_preference
-        )
-        user_preference.rating_preference = (
-            questionnaire.rating_preference
-        )
-
-    await db.execute(
-        delete(models.UserPreferenceGenre).where(
-            models.UserPreferenceGenre.user_id == current_user.id
-        )
-    )
-    await db.execute(
-        delete(models.UserPreferencePlatform).where(
-            models.UserPreferencePlatform.user_id == current_user.id
-        )
-    )
-
-    new_genres = []
-    for genre in questionnaire.genres:
-        new_genre = models.UserPreferenceGenre(
-            user_id = current_user.id,
-            genre = genre,
-        )
-        new_genres.append(new_genre)
-
-    db.add_all(new_genres)
-
-    new_platforms = []
-    for platform in questionnaire.platforms:
-        new_platform = models.UserPreferencePlatform(
-            user_id = current_user.id,
-            platform = platform
-        )
-        new_platforms.append(new_platform)
-
-    db.add_all(new_platforms)
-
+        # Update existing
+        user_preference.preferred_genres = json.dumps(questionnaire.preferred_genres or [])
+        user_preference.preferred_platforms = json.dumps(questionnaire.preferred_platforms or [])
+        user_preference.preferred_game_modes = json.dumps(questionnaire.preferred_game_modes or [])
+        user_preference.preferred_player_perspectives = json.dumps(questionnaire.preferred_player_perspectives or [])
+    
     await db.commit()
     await db.refresh(user_preference)
+    
+    return user_preference
 
-    return{
-        "message": "User preferences saved successfully",
-        "user_id": current_user.id,
-        "release_preference": user_preference.release_preference,
-        "rating_preference": user_preference.rating_preference,
-        "genres": questionnaire.genres,
-        "platforms": questionnaire.platforms,
-    }
 
-@router.get("/me/questionnaire", response_model=UserQuestionnaireResponse)
-async def get_user_questionnaire(current_user: CurrentUser, db: Annotated[AsyncSession, Depends(get_db)]):
+@router.get("/me/questionnaire", response_model=UserPreferenceBase)
+async def get_user_questionnaire(
+    current_user: CurrentUser,
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    
     result = await db.execute(
-        select(models.User)
-        .options(
-            selectinload(models.User.user_preference),
-            selectinload(models.User.user_preference_genres),
-            selectinload(models.User.user_preference_platforms),
-        )
-        .where(models.User.id == current_user.id)
+        select(models.UserPreference)
+        .where(models.UserPreference.user_id == current_user.id)
     )
-
-    user = result.scalar_one_or_none()
-
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found",
-        )
-
-    if user.user_preference is None:
+    user_preference = result.scalar_one_or_none()
+    
+    if user_preference is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Questionnaire not found",
         )
-
-    genres=[]
-    for item in user.user_preference_genres:
-        genres.append(item.genre)
-
-    platforms = []
-    for item in user.user_preference_platforms:
-        platforms.append(item.platform)
     
-    return UserQuestionnaireResponse(
-        release_preference=(
-            user.user_preference.release_preference
-        ),
-        rating_preference=(
-            user.user_preference.rating_preference
-        ),
-        genres=genres,
-        platforms=platforms,
-    )
+    return user_preference

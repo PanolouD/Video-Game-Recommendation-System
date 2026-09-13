@@ -1,5 +1,6 @@
-from pydantic import BaseModel, ConfigDict, Field, EmailStr
+from pydantic import BaseModel, ConfigDict, Field, EmailStr, field_validator
 from datetime import datetime
+import json
 
 class UserBase(BaseModel):
     username: str = Field(min_length=1, max_length=50)
@@ -42,18 +43,12 @@ class ChangePasswordRequest(BaseModel):
 ## Games Schemas
 class GameBase(BaseModel): #κοινά πεδία
     name: str = Field(min_length=1, max_length=255)
-    platform: str | None = Field(default= None, min_length=1, max_length=255)
-    year_of_release: int | None = None
-    genre: str | None = Field(default= None, min_length=1, max_length=255)
-    publisher: str | None = Field(default= None, min_length=1, max_length=255)
-    global_sales: float | None = None
-    critic_score: float | None = None
-    critic_count: int | None = None
-    user_score: float | None = None
-    user_count: int | None = None
-    developer: str | None = Field(default= None, min_length=1, max_length=255)
-    rating: str | None = Field(default= None, min_length=1, max_length=255)
-
+    genres: list[str] | None = None
+    platforms: list[str] | None = None
+    game_modes: list[str] | None = None
+    player_perspectives: list[str] | None = None
+    rating: float | None = None
+    cover_url: str | None = None
 class GameCreate(GameBase):
     pass
 
@@ -61,23 +56,48 @@ class GameResponse(GameBase): #δεδομένα που επιστρέφοντα�
     model_config = ConfigDict(from_attributes=True) #Αυτο υπαρχει ώστε το Pydantic να μπορεί να διαβάζει απευθείας attributes από ένα SQLAlchemy object και να μην περιμένει dictionary.
     
     id: int
+    igdb_id: int
+    created_at: datetime
+
+    @field_validator("genres", "platforms", "game_modes", "player_perspectives", mode="before") # Λεει στην Pydantic πριν κάνεις validation στα fields genres, platforms, game_modes, player_perspectives, τρέξε αυτή τη συνάρτηση.
+    @classmethod # Η Pydantic χρειάζεται @classmethod για να ξέρει ότι η συνάρτηση δεν χρειάζεται instance του class.
+    def parse_json_list(cls, value): # cls Το class το ίδιο.
+        if value is None:
+            return None
+        if isinstance(value, str): # Έλεγχος είναι αυτή η τιμή string;
+            return json.loads(value) # Διάβασε το JSON string και κάν' το Python list.
+        return value
 
 class UserPreferenceBase(BaseModel):
-    release_preference: str
-    rating_preference: str
+    preferred_genres: list[str] | None = None
+    preferred_platforms: list[str] | None = None
+    preferred_game_modes: list[str] | None = None
+    preferred_player_perspectives: list[str] | None = None
 
-class UserQuestionnaireCreate(UserPreferenceBase):
-    genres: list[str]
-    platforms: list[str]
+    @field_validator(
+        "preferred_genres",
+        "preferred_platforms",
+        "preferred_game_modes",
+        "preferred_player_perspectives",
+        mode="before",
+    )
+    @classmethod
+    def parse_json_lists(cls, value):
+        if value is None:
+            return None
 
-class UserQuestionnaireResponse(UserQuestionnaireCreate):
-    pass
+        if isinstance(value, str):
+            return json.loads(value)
+
+        return value
+
+    model_config = ConfigDict(from_attributes=True)
 
 class RecommendationRequest(BaseModel):
     platforms: list[str]
     genres: list[str]
-    release_preference: str
-    rating_preference: str
+    game_modes: list[str] = [] # ← Optional (default = empty list)
+    player_perspectives: list[str] = []
     top_n: int = Field(default=10)
 
 class RecommendationResponse(BaseModel):

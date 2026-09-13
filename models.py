@@ -25,7 +25,7 @@ class User(Base):
     #και να αλλάξουμε τα ονόματα μερικών directories τοτε δεν θα χρειαστεί να κάνουμε update το database. 
 
     ## User.reset_tokens relationship
-    reset_tokens: Mapped[list[PasswordResetToken]] = relationship(
+    reset_tokens: Mapped[list["PasswordResetToken"]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan",
     )#ακολουθει τον ιδιο σκεπτικο οπως το posts από πάνω αλλα για τα reset_tokens.
@@ -41,9 +41,7 @@ class User(Base):
 
     #Με το uselist = False γιατι η SQLAlchemy συχνά καταλαβαίνει ότι το UserPreference είναι ένα αντικείμενο επειδή το user_id είναι unique. 
     #Το uselist=False δηλώνει ξεκάθαρα: User → ένα UserPreference. Χωρίς αυτό, υπάρχει περίπτωση να το χειριστεί σαν λίστα
-    user_preference: Mapped[UserPreference] = relationship(back_populates="user", cascade="all, delete-orphan", uselist=False)
-    user_preference_genres: Mapped[list[UserPreferenceGenre]] = relationship(back_populates="user", cascade="all, delete-orphan")
-    user_preference_platforms: Mapped[list[UserPreferencePlatform]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    user_preference: Mapped["UserPreference | None"] = relationship(back_populates="user", cascade="all, delete-orphan", uselist=False)
 
 ## PasswordResetToken model
 class PasswordResetToken(Base):
@@ -61,46 +59,36 @@ class PasswordResetToken(Base):
         default=lambda: datetime.now(UTC),
     )
 
-    user: Mapped[User] = relationship(back_populates="reset_tokens")
+    user: Mapped["User"] = relationship(back_populates="reset_tokens")
 
 class Game(Base):
     __tablename__ = "games"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    name: Mapped[str] = mapped_column(String(255), nullable=False)
-    platform: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    year_of_release: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    genre: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    publisher: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    global_sales: Mapped[float | None] = mapped_column(Float, nullable=True)
-    critic_score: Mapped[float | None] = mapped_column(Float, nullable=True)
-    critic_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    user_score: Mapped[float | None] = mapped_column(Float, nullable=True)
-    user_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    developer: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    rating: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    igdb_id: Mapped[int] = mapped_column(Integer, unique=True, nullable=False, index=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    # JSON arrays
+    genres: Mapped[str | None] = mapped_column(Text, nullable=True)
+    platforms: Mapped[str | None] = mapped_column(Text, nullable=True)
+    game_modes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    player_perspectives: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Rating
+    rating: Mapped[float | None] = mapped_column(Float, nullable=True)
+    # Cover image
+    cover_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Timestamps
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(UTC),
+    )
 
 class UserPreference(Base):
     __tablename__ = "user_preferences"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), unique=True,nullable=False)
-    release_preference: Mapped[str] = mapped_column(String(20), nullable=False)
-    rating_preference: Mapped[str] = mapped_column(String(20), nullable=False)
-    user: Mapped[User] = relationship(back_populates="user_preference")
-
-class UserPreferenceGenre(Base):
-    __tablename__ = "user_preference_genres"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
-    genre: Mapped[str] = mapped_column(String(255), nullable=False)
-    user: Mapped[User] = relationship(back_populates="user_preference_genres")
-
-class UserPreferencePlatform(Base):
-    __tablename__ = "user_preference_platforms"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
-    platform: Mapped[str] = mapped_column(String(255), nullable=False)
-    user: Mapped[User] = relationship(back_populates="user_preference_platforms")
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), unique=True, nullable=False)
+    preferred_genres: Mapped[str | None] = mapped_column(Text, nullable=True)
+    preferred_platforms: Mapped[str | None] = mapped_column(Text, nullable=True) 
+    preferred_game_modes: Mapped[str | None] = mapped_column(Text, nullable=True) 
+    preferred_player_perspectives: Mapped[str | None] = mapped_column(Text, nullable=True) 
+    user: Mapped["User"] = relationship(back_populates="user_preference")
