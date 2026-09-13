@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import {FaEye, FaEyeSlash} from "react-icons/fa";
+import {registerUser} from "../services/api";
 import "../css/auth.css"
 
 function SignUp() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   
   const navigate = useNavigate();
@@ -15,33 +18,22 @@ function SignUp() {
     setError("");
 
     try{
-        const response = await fetch("http://localhost:8000/api/users",{
-          
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            username: username,
-            email: email,
-            password: password,
-          }),
-
+        await registerUser({
+          username: username,
+          email: email,
+          password: password,
         });
-
-        const data = await response.json();
-
-        if(!response.ok){
-          console.log(data);
-          setError("Could not create account.");
-          return;
-        }
       
         navigate("/login");
-    } catch (error){
+    } catch (error) {
       console.log(error);
-      setError("Could not connect to the server.");
-    }  
+
+      if (error.status === 400) {
+        setError(error.message);
+      } else {
+        setError("Could not connect to the server.");
+      }
+    }
   }
 
   return (
@@ -83,16 +75,27 @@ function SignUp() {
 
             <div className="auth-field">
               <label htmlFor="password">Password</label>
-              <input
-                id="password"
-                type="password"
-                required
-                minLength={8}
-                placeholder="Password"
-                value={password}
-                autoComplete="new-password"
-                onChange={(e) => setPassword(e.target.value)}
-              />
+                <div className="password-input-container">
+                  <input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    minLength={8}
+                    placeholder="Password"
+                    value={password}
+                    autoComplete="new-password"
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+
+                  <button 
+                    type="button"  
+                    className="password-toggle"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <FaEye /> : <FaEyeSlash />}  {/* Αλλαζουμε το icon απο κλειστο σε ανοιχτο */}
+                  </button>
+                </div>  
             </div>
 
             <button type="submit" className="auth-button">Create Account</button>
