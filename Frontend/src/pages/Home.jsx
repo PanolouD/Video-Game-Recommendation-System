@@ -13,7 +13,7 @@ function Home() {
     { id: 1, title: "The Witcher 3", image: "https://placehold.co/220x280", genre: "RPG", rating: 9.4},
     { id: 2, title: "Elden Ring", image: "https://placehold.co/220x280", genre: "Action RPG", rating: 9.5},
     { id: 3, title: "Red Dead Redemption 2", image: "https://placehold.co/220x280", genre: "Action / Adventure", rating: 9.7},
-    { id: 4, title: "Cyberpunk 2077", image: "https://placehold.co/220x280", genre: "RPG", rating: 8.8}
+    { id: 4, title: "Cyberpunk 2077", image: "https://placehold.co/220x280", genre: "RPG", rating: 8.8},
     
   ];
   
