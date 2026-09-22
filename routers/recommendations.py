@@ -26,6 +26,7 @@ async def create_recommendations(
         platforms=request.platforms,
         game_modes=request.game_modes,
         player_perspectives=request.player_perspectives,
+        themes=request.themes,
         games=games,
         top_n=request.top_n,
     )
@@ -88,6 +89,12 @@ async def create_recommendations_with_preferences(
         else []
     )
 
+    preferred_themes = (
+        json.loads(user.user_preference.preferred_themes)
+        if user.user_preference.preferred_themes
+        else []
+    )
+
     games = await get_games_from_db(db)
     
     recommendations = recommend_games(
@@ -95,6 +102,7 @@ async def create_recommendations_with_preferences(
         platforms=preferred_platforms,
         game_modes=preferred_game_modes,
         player_perspectives=preferred_player_perspectives,
+        themes=preferred_themes,
         games=games,
         top_n=top_n,
     )

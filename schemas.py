@@ -47,6 +47,9 @@ class GameBase(BaseModel): #κοινά πεδία
     platforms: list[str] | None = None
     game_modes: list[str] | None = None
     player_perspectives: list[str] | None = None
+    themes: list[str] | None = None
+    summary: str | None = None
+    storyline: str | None = None
     rating: float | None = None
     cover_url: str | None = None
 class GameCreate(GameBase):
@@ -59,7 +62,7 @@ class GameResponse(GameBase): #δεδομένα που επιστρέφοντα�
     igdb_id: int
     created_at: datetime
 
-    @field_validator("genres", "platforms", "game_modes", "player_perspectives", mode="before") # Λεει στην Pydantic πριν κάνεις validation στα fields genres, platforms, game_modes, player_perspectives, τρέξε αυτή τη συνάρτηση.
+    @field_validator("genres", "platforms", "game_modes", "player_perspectives", "themes", mode="before") # Λεει στην Pydantic πριν κάνεις validation στα fields genres, platforms, game_modes, player_perspectives, τρέξε αυτή τη συνάρτηση.
     @classmethod # Η Pydantic χρειάζεται @classmethod για να ξέρει ότι η συνάρτηση δεν χρειάζεται instance του class.
     def parse_json_list(cls, value): # cls Το class το ίδιο.
         if value is None:
@@ -73,12 +76,14 @@ class UserPreferenceBase(BaseModel):
     preferred_platforms: list[str] | None = None
     preferred_game_modes: list[str] | None = None
     preferred_player_perspectives: list[str] | None = None
+    preferred_themes: list[str] | None = None
 
     @field_validator(
         "preferred_genres",
         "preferred_platforms",
         "preferred_game_modes",
         "preferred_player_perspectives",
+        "preferred_themes",
         mode="before",
     )
     @classmethod
@@ -98,6 +103,7 @@ class RecommendationRequest(BaseModel):
     genres: list[str]
     game_modes: list[str] = [] # ← Optional (default = empty list)
     player_perspectives: list[str] = []
+    themes: list[str] = []
     top_n: int = Field(default=10)
 
 class RecommendationResponse(BaseModel):

@@ -3,7 +3,7 @@ import json
 import logging
 import sys
 from pathlib import Path
-from igdb_client import fetch_games, get_full_game_details, get_genre_names, get_platform_names, get_game_mode_names, get_player_perspective_names
+from igdb_client import fetch_games, get_full_game_details, get_genre_names, get_platform_names, get_game_mode_names, get_player_perspective_names, get_theme_names
 from database import AsyncSessionLocal
 from models import Game
 from sqlalchemy import select
@@ -40,6 +40,9 @@ def game_to_db_game(igdb_game: dict) -> Game:
         platforms=list_to_json(get_platform_names(igdb_game.get("platforms", []))),
         game_modes=list_to_json(get_game_mode_names(igdb_game.get("game_modes", []))),
         player_perspectives=list_to_json(get_player_perspective_names(igdb_game.get("player_perspectives", []))),
+        themes=list_to_json(get_theme_names(igdb_game.get("themes", []))),
+        summary=igdb_game.get("summary"),
+        storyline=igdb_game.get("storyline"),
         rating=igdb_game.get("rating"),
         cover_url=igdb_game.get("cover_url"),
     )

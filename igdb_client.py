@@ -9,6 +9,7 @@ _cached_token = None # κραταει το access token.
 _token_expiry = None # κραταει το  πότε λήγει το token.
 _cached_genre_map = None # κραταει το genre map.
 _cached_platform_map = None # κραταει το platform map.
+_cached_theme_map = None
 
 def get_access_token():
     """Παίρνει νέο access token από IGDB."""
@@ -42,7 +43,7 @@ def fetch_games(genre_id=None, offset=0, limit=500):
         "Client-ID": CLIENT_ID,
         "Authorization": f"Bearer {token}",
     }
-    fields = "fields name, genres, platforms, release_dates, rating, cover, game_modes, player_perspectives, involved_companies.company, involved_companies.developer, involved_companies.publisher;"
+    fields = "fields name, genres, platforms, release_dates, rating, cover, game_modes, player_perspectives, involved_companies.company, involved_companies.developer, involved_companies.publisher, themes, summary, storyline;"
     pagination = f"limit {limit}; offset {offset}; sort rating desc;"
     if genre_id:
         where = f"where genres = {genre_id};"
@@ -308,6 +309,42 @@ def get_cover_url(cover_id):
         return url
     return None
 
+@lru_cache(maxsize=1)
+def get_theme_map():
+    """Φτιάχνει map theme ID -> name."""
+    token = get_access_token_cached()
+    url = "https://api.igdb.com/v4/themes"
+    headers = {
+        "Client-ID": CLIENT_ID,
+        "Authorization": f"Bearer {token}",
+    }
+    query = "fields name; limit 100;"
+    response = requests.post(url, headers=headers, data=query)
+    themes = response.json()
+    result = {}
+    for theme in themes:
+        result[theme["id"]] = theme["name"]
+    return result
+
+
+def get_theme_map_cached():
+    """Παίρνει theme map από cache ή κάνει νέο request."""
+    global _cached_theme_map
+    
+    if _cached_theme_map is None:
+        _cached_theme_map = get_theme_map()
+    
+    return _cached_theme_map
+
+
+def get_theme_names(theme_ids):
+    """Μετατρέπει list theme IDs σε list theme names."""
+    theme_map = get_theme_map_cached()
+    result = []
+    for tid in theme_ids:
+        result.append(theme_map.get(tid, f"Unknown ({tid})"))
+    return result
+
 def get_full_game_details(game_id):
     """Επιστρέφει όλα τα data ενός game σε clean format."""
     # Φέρνουμε τα βασικά data
@@ -317,7 +354,7 @@ def get_full_game_details(game_id):
         "Client-ID": CLIENT_ID,
         "Authorization": f"Bearer {token}",
     }
-    fields = "fields name, genres, platforms, release_dates, rating, cover, game_modes, player_perspectives, involved_companies;"
+    fields = "fields name, genres, platforms, release_dates, rating, cover, game_modes, player_perspectives, involved_companies, themes, summary, storyline;"
     query = f"{fields} where id = {game_id};"
     response = requests.post(url, headers=headers, data=query)
     games = response.json()
@@ -337,6 +374,9 @@ def get_full_game_details(game_id):
         "game_modes": get_game_mode_names(game.get("game_modes", [])),
         "player_perspectives": get_player_perspective_names(game.get("player_perspectives", [])),
         "companies": get_game_companies(game["id"]),
+        "themes": get_theme_names(game.get("themes", [])),
+        "summary": game.get("summary"),
+        "storyline": game.get("storyline"),
     }
 
 if __name__ == "__main__":

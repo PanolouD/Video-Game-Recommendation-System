@@ -72,7 +72,9 @@ class Game(Base):
     platforms: Mapped[str | None] = mapped_column(Text, nullable=True)
     game_modes: Mapped[str | None] = mapped_column(Text, nullable=True)
     player_perspectives: Mapped[str | None] = mapped_column(Text, nullable=True)
-    # Rating
+    themes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    summary: Mapped[str | None] = mapped_column(Text, nullable=True)  
+    storyline: Mapped[str | None] = mapped_column(Text, nullable=True)  
     rating: Mapped[float | None] = mapped_column(Float, nullable=True)
     # Cover image
     cover_url: Mapped[str | None] = mapped_column(Text, nullable=True)
@@ -91,4 +93,5 @@ class UserPreference(Base):
     preferred_platforms: Mapped[str | None] = mapped_column(Text, nullable=True) 
     preferred_game_modes: Mapped[str | None] = mapped_column(Text, nullable=True) 
     preferred_player_perspectives: Mapped[str | None] = mapped_column(Text, nullable=True) 
+    preferred_themes: Mapped[str | None] = mapped_column(Text, nullable=True)
     user: Mapped["User"] = relationship(back_populates="user_preference")

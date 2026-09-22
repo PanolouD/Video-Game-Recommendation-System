@@ -16,7 +16,7 @@ def parse_json_list(value):
     return value
 
 
-def recommend_games(genres, platforms, game_modes, player_perspectives, games, top_n=10):
+def recommend_games(genres, platforms, game_modes, player_perspectives, themes, games, top_n=10):
     filtered_games = []
 
     for game in games:
@@ -27,6 +27,7 @@ def recommend_games(genres, platforms, game_modes, player_perspectives, games, t
             platforms=platforms,
             game_modes=game_modes,
             player_perspectives=player_perspectives,
+            themes=themes,
         ):
             filtered_games.append(game)
 
@@ -39,6 +40,7 @@ def recommend_games(genres, platforms, game_modes, player_perspectives, games, t
         platforms=platforms,
         game_modes=game_modes,
         player_perspectives=player_perspectives,
+        themes=themes,
     )
 
     # Create game texts for TF-IDF
@@ -62,6 +64,7 @@ def recommend_games(genres, platforms, game_modes, player_perspectives, games, t
             user_platforms=platforms,
             user_game_modes=game_modes,
             user_player_perspectives=player_perspectives,
+            user_themes=themes,
             tfidf_score=float(tfidf_scores[index]),
         )
         recommendations.append(
@@ -85,6 +88,7 @@ def create_game_text(game):
     platforms_list = parse_json_list(game.platforms)
     game_modes_list = parse_json_list(game.game_modes)
     player_perspectives_list = parse_json_list(game.player_perspectives)
+    themes_list = parse_json_list(game.themes)
 
     # Μετατροπη των lists σε space-separated strings.
     if genres_list:
@@ -106,6 +110,11 @@ def create_game_text(game):
         player_perspectives_str = " ".join(player_perspectives_list)
     else:
         player_perspectives_str = ""
+
+    if themes_list:
+        themes_str = " ".join(themes_list)
+    else:
+        themes_str = ""
     
     return " ".join(
         [
@@ -114,16 +123,18 @@ def create_game_text(game):
             platforms_str,
             game_modes_str,
             player_perspectives_str,
+            themes_str,
         ]
     )
 
-def create_user_text(genres, platforms, game_modes, player_perspectives):
+def create_user_text(genres, platforms, game_modes, player_perspectives, themes,):
     """Δημιουργεί text representation του user preference για το tfidf"""
     user_parts = [
         *genres,
         *platforms,
         *game_modes,
         *player_perspectives,
+        *themes,
     ]
 
     return " ".join(user_parts)
@@ -135,6 +146,7 @@ def game_matches_preferences(
     platforms,
     game_modes,
     player_perspectives,
+    themes,
 ):
     # Check genres if user has preferences
     if genres and not matches_any(game.genres, genres):
@@ -150,6 +162,9 @@ def game_matches_preferences(
 
     # Check player_perspectives if user has preferences
     if player_perspectives and not matches_any(game.player_perspectives, player_perspectives):
+        return False
+
+    if themes and not matches_any(game.themes, themes):
         return False
 
     return True
@@ -184,19 +199,22 @@ def calculate_game_score(
     user_platforms,
     user_game_modes,
     user_player_perspectives,
+    user_themes,
     tfidf_score,
 ):
     genre_score = calculate_match_score(game.genres, user_genres)
     platform_score = calculate_match_score(game.platforms, user_platforms)
     game_mode_score = calculate_match_score(game.game_modes, user_game_modes)
     player_perspective_score = calculate_match_score(game.player_perspectives, user_player_perspectives)
+    theme_score = calculate_match_score(game.themes, user_themes)
 
     # Weighted average
     rule_score = (
-        0.35 * genre_score +
-        0.30 * platform_score +
+        0.30 * genre_score +
+        0.25 * platform_score +
         0.20 * game_mode_score +
-        0.15 * player_perspective_score
+        0.15 * player_perspective_score +
+        0.10 * theme_score
     )
 
     # Combine with tfidf

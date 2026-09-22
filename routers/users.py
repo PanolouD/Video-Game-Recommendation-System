@@ -396,6 +396,7 @@ async def save_user_preference(
             preferred_platforms=json.dumps(questionnaire.preferred_platforms or []),
             preferred_game_modes=json.dumps(questionnaire.preferred_game_modes or []),
             preferred_player_perspectives=json.dumps(questionnaire.preferred_player_perspectives or []),
+            preferred_themes=json.dumps(questionnaire.preferred_themes or []),
         )
         db.add(user_preference)
     else:
@@ -404,6 +405,7 @@ async def save_user_preference(
         user_preference.preferred_platforms = json.dumps(questionnaire.preferred_platforms or [])
         user_preference.preferred_game_modes = json.dumps(questionnaire.preferred_game_modes or [])
         user_preference.preferred_player_perspectives = json.dumps(questionnaire.preferred_player_perspectives or [])
+        user_preference.preferred_themes = json.dumps(questionnaire.preferred_themes or [])
     
     await db.commit()
     await db.refresh(user_preference)
