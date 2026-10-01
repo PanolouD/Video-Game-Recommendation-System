@@ -51,6 +51,9 @@ class GameBase(BaseModel): #κοινά πεδία
     summary: str | None = None
     storyline: str | None = None
     rating: float | None = None
+    rating_count: int | None = None
+    total_rating: float | None = None
+    total_rating_count: int | None = None
     cover_url: str | None = None
 class GameCreate(GameBase):
     pass

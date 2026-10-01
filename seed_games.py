@@ -3,7 +3,7 @@ import json
 import logging
 import sys
 from pathlib import Path
-from igdb_client import fetch_games, get_full_game_details, get_genre_names, get_platform_names, get_game_mode_names, get_player_perspective_names, get_theme_names
+from igdb_client import fetch_games, get_full_game_details, get_cover_url, get_genre_names, get_platform_names, get_game_mode_names, get_player_perspective_names, get_theme_names
 from database import AsyncSessionLocal
 from models import Game
 from sqlalchemy import select
@@ -44,9 +44,12 @@ def game_to_db_game(igdb_game: dict) -> Game:
         summary=igdb_game.get("summary"),
         storyline=igdb_game.get("storyline"),
         rating=igdb_game.get("rating"),
-        cover_url=igdb_game.get("cover_url"),
+        rating_count=igdb_game.get("rating_count"),
+        total_rating=igdb_game.get("total_rating"),
+        total_rating_count=igdb_game.get("total_rating_count"),
+        cover_url=get_cover_url(igdb_game.get("cover")), # Ωστε το id του image να γινεται url
     )
-
+ 
 
 async def seed_games(limit: int = 500) -> None:
     logger.info(f"Fetching {limit} games from IGDB...")
@@ -66,8 +69,12 @@ async def seed_games(limit: int = 500) -> None:
                     select(Game).where(Game.igdb_id == igdb_game["id"])
                 )
                 if existing:
-                    skipped += 1
-                    logger.debug(f"Skipped: {igdb_game['name']} (already exists)")
+                    if not existing.cover_url and igdb_game.get("cover"):
+                        existing.cover_url = get_cover_url(igdb_game["cover"])
+                        logger.info(f"Updated cover: {existing.name}")
+                    else:    
+                        skipped += 1
+                        logger.debug(f"Skipped: {igdb_game['name']} (already exists)")
                     continue
                 # Convert to Game model
                 db_game = game_to_db_game(igdb_game)

@@ -76,6 +76,9 @@ class Game(Base):
     summary: Mapped[str | None] = mapped_column(Text, nullable=True)  
     storyline: Mapped[str | None] = mapped_column(Text, nullable=True)  
     rating: Mapped[float | None] = mapped_column(Float, nullable=True)
+    rating_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    total_rating: Mapped[float | None] = mapped_column(Float, nullable=True)
+    total_rating_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
     # Cover image
     cover_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     # Timestamps

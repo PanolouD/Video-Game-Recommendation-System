@@ -27,5 +27,8 @@ class Settings(BaseSettings):
 
     frontend_url: str = "http://localhost:3000"
 
+    igdb_client_id: str
+    igdb_client_secret: SecretStr #Το secret εμποδιζει την τυχαια εμφανιση ολοκληρου του secret 
+
 
 settings = Settings() #Loaded from .env file

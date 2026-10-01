@@ -1,9 +1,10 @@
 import requests #για HTTP requests
 from datetime import datetime, timedelta #για caching
 from functools import lru_cache #Με το lru_cache μετά από request στο API αποθηκεύει το result
+from config import settings
 
-CLIENT_ID = "lrz5436iurz8ue6oz6bp3orznqqq0e"
-CLIENT_SECRET = "aifzmhomywszkup8uw6sss6kx4s4ya"
+CLIENT_ID = settings.igdb_client_id
+CLIENT_SECRET = settings.igdb_client_secret.get_secret_value()
 
 _cached_token = None # κραταει το access token.
 _token_expiry = None # κραταει το  πότε λήγει το token.
@@ -43,8 +44,8 @@ def fetch_games(genre_id=None, offset=0, limit=500):
         "Client-ID": CLIENT_ID,
         "Authorization": f"Bearer {token}",
     }
-    fields = "fields name, genres, platforms, release_dates, rating, cover, game_modes, player_perspectives, involved_companies.company, involved_companies.developer, involved_companies.publisher, themes, summary, storyline;"
-    pagination = f"limit {limit}; offset {offset}; sort rating desc;"
+    fields = "fields name, genres, platforms, release_dates, rating, rating_count, total_rating, total_rating_count, cover, game_modes, player_perspectives, involved_companies.company, involved_companies.developer, involved_companies.publisher, themes, summary, storyline;"
+    pagination = f"limit {limit}; offset {offset}; sort total_rating_count desc;"
     if genre_id:
         where = f"where genres = {genre_id};"
         query = f"{fields} {where} {pagination}"

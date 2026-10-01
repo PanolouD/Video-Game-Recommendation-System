@@ -74,6 +74,10 @@ export function getCurrentUser() {
     return apiRequest("/api/users/me"); // Το fetch χρησιμοποιεί απο μονο του GET method, για αυτο δεν ξεκαθαριζουμε εμεις το method
 }
 
+export function getGames(){
+    return apiRequest("/api/games");
+}
+
 export function saveQuestionnaire(questionnaireData) {
     return apiRequest("/api/users/me/questionnaire", {
         method: "POST",
@@ -91,3 +95,8 @@ export function getQuestionnaire() {
     return apiRequest("/api/users/me/questionnaire");
 }
 
+export function getRecommendations(topN = 10) {
+    return apiRequest(
+        `/api/recommendations/me?top_n=${topN}`
+    );
+}
