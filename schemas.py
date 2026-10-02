@@ -114,3 +114,14 @@ class RecommendationResponse(BaseModel):
 
     game: GameResponse
     score: float
+
+class LibraryGameResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    saved_at: datetime
+    game: GameResponse
+
+class LibraryGameStatusResponse(BaseModel):
+    game_id: int
+    is_saved: bool

@@ -75,7 +75,7 @@ export function getCurrentUser() {
 }
 
 export function getGames(){
-    return apiRequest("/api/games");
+    return apiRequest("/api/games/");
 }
 
 export function saveQuestionnaire(questionnaireData) {
