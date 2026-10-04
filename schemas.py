@@ -48,12 +48,24 @@ class GameBase(BaseModel): #κοινά πεδία
     game_modes: list[str] | None = None
     player_perspectives: list[str] | None = None
     themes: list[str] | None = None
+
     summary: str | None = None
     storyline: str | None = None
+
+    screenshots: list[str] | None = None
+    trailer_video_id: str | None = None
+    first_release_date: datetime | None = None
+    developers: list[str] | None = None
+    publishers: list[str] | None = None
+    websites: list[dict] | None = None
+    age_ratings: list[dict] | None = None
+    similar_games: list[dict] | None = None
+
     rating: float | None = None
     rating_count: int | None = None
     total_rating: float | None = None
     total_rating_count: int | None = None
+
     cover_url: str | None = None
 class GameCreate(GameBase):
     pass
@@ -65,7 +77,7 @@ class GameResponse(GameBase): #δεδομένα που επιστρέφοντα�
     igdb_id: int
     created_at: datetime
 
-    @field_validator("genres", "platforms", "game_modes", "player_perspectives", "themes", mode="before") # Λεει στην Pydantic πριν κάνεις validation στα fields genres, platforms, game_modes, player_perspectives, τρέξε αυτή τη συνάρτηση.
+    @field_validator("genres", "platforms", "game_modes", "player_perspectives", "themes", "screenshots", "developers", "publishers", "websites", "age_ratings", "similar_games", mode="before") # Λεει στην Pydantic πριν κάνεις validation στα fields genres, platforms, game_modes, player_perspectives, τρέξε αυτή τη συνάρτηση (JSON validator).
     @classmethod # Η Pydantic χρειάζεται @classmethod για να ξέρει ότι η συνάρτηση δεν χρειάζεται instance του class.
     def parse_json_list(cls, value): # cls Το class το ίδιο.
         if value is None:

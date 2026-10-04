@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import VideoGameCard from "../components/VideoGameCard";
+import GameDetailsCard from "../components/GameDetailsCard";
 import { getRecommendations } from "../services/api";
 
 import "../css/Recommendations.css";
@@ -17,6 +17,8 @@ function Recommendations() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
 
+    const [currentIndex, setCurrentIndex] = useState(0);
+
     useEffect(() => {
 
 
@@ -28,6 +30,7 @@ function Recommendations() {
           const data = await getRecommendations(10);
 
           setRecommendations(data);
+          setCurrentIndex(0);
 
         } catch (requestError) {
           console.error(
@@ -52,7 +55,20 @@ function Recommendations() {
       loadRecommendations();
     }, [navigate]);
 
+    function handlePrevious() {
+      setCurrentIndex((previousIndex) =>
+          Math.max(previousIndex - 1, 0)
+      );
+    }
 
+    function handleNext() {
+        setCurrentIndex((previousIndex) =>
+            Math.min(
+                previousIndex + 1,
+                recommendations.length - 1
+            )
+        );
+    }
 
     if (isLoading) {
       return (
@@ -90,41 +106,56 @@ function Recommendations() {
                 These games are ranked according to how closely
                 they match your questionnaire answers.
             </p>
-          </header>
+        </header>
           
           {recommendations.length === 0 ? (
                 
-              <div className="recommendations-empty">
-                  <h2>No matching games found</h2>
+        <div className="recommendations-empty" role="status">
+            <span className="recommendations-empty-icon" aria-hidden="true">
+                🎮
+            </span>
 
-                  <p>
-                      Try selecting fewer or more general preferences.
-                  </p>
+            <h2>We couldn't find an exact match</h2>
 
-                  <Link to="/questionnaire">
-                      Update questionnaire
-                  </Link>
-                </div>
+            <p>
+                Your current preferences may be too specific.
+                Try removing one or two choices to discover more games.
+            </p>
+
+          <div className="recommendations-empty-actions">
+            <Link to="/questionnaire" className="recommendations-empty-primary">
+                    Update questionnaire
+            </Link>
+
+            <Link to="/" className="recommendations-empty-secondary">
+                    Explore popular games
+            </Link>
+          </div>
+       </div>
             ) : (
-                <div className="recommendations-grid">
-                    {recommendations.map(
-                        ({ game, score }, index) => (
-                            <div
-                                className="recommendation-result"
-                                key={game.id}
-                            >
-                                <span className="recommendation-rank">
-                                    #{index + 1}
-                                </span>
+                <section className="recommendation-viewer">
+                    <GameDetailsCard
+                        game={recommendations[currentIndex].game}
+                        matchScore={recommendations[currentIndex].score}
+                        rank={currentIndex + 1}
+                    />
 
-                                <VideoGameCard
-                                    game={game}
-                                    matchScore={score}
-                                />
-                            </div>
-                        )
-                    )}
-                </div>
+                    <nav className="recommendation-navigation" aria-label="Recommendation navigation">
+
+                        <button type="button" onClick={handlePrevious} disabled={currentIndex === 0}>
+                            ← Previous
+                        </button>
+
+                        <span>
+                            {currentIndex + 1} of {recommendations.length}
+                        </span>
+
+                        <button type="button" onClick={handleNext} disabled={currentIndex === recommendations.length - 1}>
+                            Next →
+                        </button>
+
+                    </nav>
+                </section>
             )}
 
       </main>

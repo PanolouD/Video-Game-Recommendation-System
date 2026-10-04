@@ -36,7 +36,7 @@ function Home() {
   
 
   const popularGames = [...games].sort((firstGame, secondGame) => 
-    (secondGame.total_rating_count ?? 0) - (firstGame.total_rating_count ?? 0)).slice(0, 12);
+    (secondGame.total_rating_count ?? 0) - (firstGame.total_rating_count ?? 0)).slice(0, 40);
 
 
   const filteredGames = searchQuery.trim() ? games.filter((game) => 

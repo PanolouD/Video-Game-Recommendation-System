@@ -81,6 +81,14 @@ class Game(Base):
     total_rating_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
     # Cover image
     cover_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    screenshots: Mapped[str | None] = mapped_column(Text, nullable=True)
+    trailer_video_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    first_release_date: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    developers: Mapped[str | None] = mapped_column(Text, nullable=True)
+    publishers: Mapped[str | None] = mapped_column(Text, nullable=True)
+    websites: Mapped[str | None] = mapped_column(Text, nullable=True)
+    age_ratings: Mapped[str | None] = mapped_column(Text, nullable=True)
+    similar_games: Mapped[str | None] = mapped_column(Text, nullable=True)
     # Timestamps
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
