@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, Float
+from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, Float, UniqueConstraint 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from database import Base
@@ -42,6 +42,7 @@ class User(Base):
     #Με το uselist = False γιατι η SQLAlchemy συχνά καταλαβαίνει ότι το UserPreference είναι ένα αντικείμενο επειδή το user_id είναι unique. 
     #Το uselist=False δηλώνει ξεκάθαρα: User → ένα UserPreference. Χωρίς αυτό, υπάρχει περίπτωση να το χειριστεί σαν λίστα
     user_preference: Mapped["UserPreference | None"] = relationship(back_populates="user", cascade="all, delete-orphan", uselist=False)
+    library_games: Mapped[list["UserLibraryGame"]] = relationship(back_populates="user", cascade="all, delete-orphan",)
 
 ## PasswordResetToken model
 class PasswordResetToken(Base):
@@ -94,6 +95,7 @@ class Game(Base):
         DateTime(timezone=True),
         default=lambda: datetime.now(UTC),
     )
+    library_entries: Mapped[list["UserLibraryGame"]] = relationship(back_populates="game", cascade="all, delete-orphan",)
 
 class UserPreference(Base):
     __tablename__ = "user_preferences"
@@ -106,3 +108,16 @@ class UserPreference(Base):
     preferred_player_perspectives: Mapped[str | None] = mapped_column(Text, nullable=True) 
     preferred_themes: Mapped[str | None] = mapped_column(Text, nullable=True)
     user: Mapped["User"] = relationship(back_populates="user_preference")
+
+class UserLibraryGame(Base):
+    __tablename__ = "user_library_games"
+
+    __table_args__ = (UniqueConstraint("user_id", "game_id", name="uq_user_library_games_user_game",) ,) #Το UniqueConstraint είναι προστασία στο επίπεδο της βάσης. 
+    #Ακόμη κι αν το frontend στείλει δύο φορές γρήγορα το ίδιο request, η βάση δεν θα αποθηκεύσει duplicate entry.
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True,)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True,)
+    game_id: Mapped[int] = mapped_column(ForeignKey("games.id"), nullable=False, index=True,)
+    saved_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False,)
+    user: Mapped["User"] = relationship(back_populates="library_games")
+    game: Mapped["Game"] = relationship(back_populates="library_entries")
