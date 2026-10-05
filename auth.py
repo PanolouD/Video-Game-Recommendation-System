@@ -39,17 +39,17 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
     """Create a JWT access token."""
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.now(UTC) + expires_delta
+        expire = datetime.now(UTC) + expires_delta # Αν δοθεί συγκεκριμένη διάρκεια, χρησιμοποιείται αυτή.
     else:
         expire = datetime.now(UTC) + timedelta(
             minutes=settings.access_token_expire_minutes,
-        )
+        ) # Διαφορετικά χρησιμοποιείται η default διάρκεια από το config.py.
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(
         to_encode,
         settings.secret_key.get_secret_value(), #Με αυτη την εντολη παιρνουμε το actual string απο τα settings μας αφοτου το ορισαμε ως secret string. 
         algorithm=settings.algorithm,
-    )
+    ) # Υπογραφή του token
     return encoded_jwt
 
 ## verify_access_token
@@ -60,12 +60,12 @@ def verify_access_token(token: str) -> str | None:
             token,
             settings.secret_key.get_secret_value(),
             algorithms=[settings.algorithm],
-            options={"require": ["exp", "sub"]},
-        )
+            options={"require": ["exp", "sub"]}, 
+        ) # Το options={"require": ["exp", "sub"]} σημαίνει ότι αυτά τα δύο claims πρέπει οπωσδήποτε να υπάρχουν.
     except jwt.InvalidTokenError:
         return None
     else:
-        return payload.get("sub")
+        return payload.get("sub") # Επιστρέφει το user ID που υπάρχει στο token.
 
 ## get_current_user
 async def get_current_user(

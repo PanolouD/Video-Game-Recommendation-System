@@ -218,7 +218,7 @@ def calculate_game_score(
     )
 
     # Combine with tfidf
-    final_score = (0.70 * rule_score + 0.30 * tfidf_score)
+    final_score = (0.85 * rule_score + 0.15 * tfidf_score)
     return final_score
 
 def calculate_match_score(game_json, user_preferences):
