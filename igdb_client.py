@@ -1,5 +1,5 @@
 import requests #για HTTP requests
-from datetime import datetime, timedelta #για caching
+from datetime import UTC, datetime, timedelta #για caching
 from functools import lru_cache #Με το lru_cache μετά από request στο API αποθηκεύει το result
 from config import settings
 
@@ -44,7 +44,7 @@ def fetch_games(genre_id=None, offset=0, limit=500):
         "Client-ID": CLIENT_ID,
         "Authorization": f"Bearer {token}",
     }
-    fields = "fields name, genres, platforms, release_dates, rating, rating_count, total_rating, total_rating_count, cover, game_modes, player_perspectives, involved_companies.company, involved_companies.developer, involved_companies.publisher, themes, summary, storyline;"
+    fields = "fields name, genres, platforms, first_release_date, rating, rating_count, total_rating, total_rating_count, cover.image_id, game_modes, player_perspectives, themes, summary, storyline, screenshots.image_id, videos.name, videos.video_id, websites.url, websites.trusted, websites.type.type, age_ratings.organization.name, age_ratings.rating_category.rating, involved_companies.company.name, involved_companies.developer, involved_companies.publisher, similar_games.name, similar_games.cover.image_id;"
     pagination = f"limit {limit}; offset {offset}; sort total_rating_count desc;"
     if genre_id:
         where = f"where genres = {genre_id};"
@@ -309,6 +309,126 @@ def get_cover_url(cover_id):
             url = "https:" + url
         return url
     return None
+
+def build_igdb_image_url(image_id, size="t_cover_big"):
+    # δημιουργει IGDB image URL (διαφορετικων μεγεθων) απο image_id
+    if not image_id:
+        return None
+
+    return (
+        "https://images.igdb.com/igdb/image/upload/"
+        f"{size}/{image_id}.jpg"
+    )
+
+def get_screenshot_urls(screenshots, limit=3):
+    # επιστρεφει εως 3 (limit) screenshot URLs 
+    result = []
+
+    for screenshot in screenshots or []:
+        image_id = screenshot.get("image_id")
+
+        if not image_id:
+            continue
+
+        screenshot_url = build_igdb_image_url(image_id, "t_screenshot_big",)
+
+        if screenshot_url not in result:
+            result.append(screenshot_url)
+
+        if len(result) >= limit:
+            break
+
+    return result
+
+def get_trailer_video_id(videos):
+    # Επιστρεφει το πρωτο video που αναφερεται ως trailer
+    for video in videos or []:
+        name = video.get("name", "")
+        video_id = video.get("video_id")
+
+        if video_id and "trailer" in name.lower():
+            return video_id
+
+    return None
+
+def get_first_release_datetime(timestamp):
+    # Μετατρέπει IGDB Unix timestamp σε UTC datetime.
+    if not timestamp:
+        return None
+    try:
+        return datetime.fromtimestamp(timestamp, tz=UTC)
+    except (TypeError, ValueError, OSError):
+        return None
+
+def get_company_names(involved_companies, role):
+    # Επιστρέφει μοναδικά company names για έναν ρόλο.
+    result = []
+
+    for involved_company in involved_companies or []:
+        if not involved_company.get(role):
+            continue
+
+        company = involved_company.get("company") or {}
+        company_name = company.get("name")
+
+        if company_name and company_name not in result:
+            result.append(company_name)
+
+    return result   
+
+def get_website_details(websites): # Websites converter
+    #Καθαρίζει τα website δεδομένα της IGDB.
+    result = []
+
+    for website in websites or []:
+        url = website.get("url")
+
+        if not url or not url.startswith(("http://", "https://")):
+            continue
+
+        website_type = website.get("type") or {}
+
+        result.append({"type": website_type.get("type", "Website"), "url": url, "trusted": website.get("trusted", False),})
+
+    return result
+
+def get_age_rating_details(age_ratings):
+    #Μετατρέπει age ratings σε απλά organization/rating objects."
+    result = []
+
+    for age_rating in age_ratings or []:
+        organization = age_rating.get("organization") or {}
+        rating_category = age_rating.get("rating_category") or {}
+
+        organization_name = organization.get("name")
+        rating = rating_category.get("rating")
+
+        if not organization_name or not rating:
+            continue
+
+        result.append({"organization": organization_name, "rating": rating,})
+
+    return result
+
+def get_similar_game_details(similar_games, limit=6):
+    #Επιστρέφει έως 6 (limit) παρόμοια παιχνίδια.
+    result = []
+
+    for similar_game in similar_games or []:
+        igdb_id = similar_game.get("id")
+        name = similar_game.get("name")
+
+        if not igdb_id or not name:
+            continue
+
+        cover = similar_game.get("cover") or {}
+
+        result.append({"igdb_id": igdb_id, "name": name, "cover_url": build_igdb_image_url(cover.get("image_id"), "t_cover_big",), })
+
+        if len(result) >= limit:
+            break
+
+    return result
 
 @lru_cache(maxsize=1)
 def get_theme_map():

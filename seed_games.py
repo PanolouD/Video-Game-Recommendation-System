@@ -3,7 +3,7 @@ import json
 import logging
 import sys
 from pathlib import Path
-from igdb_client import fetch_games, get_full_game_details, get_cover_url, get_genre_names, get_platform_names, get_game_mode_names, get_player_perspective_names, get_theme_names
+from igdb_client import fetch_games, get_full_game_details, build_igdb_image_url, get_genre_names, get_platform_names, get_game_mode_names, get_player_perspective_names, get_theme_names, get_screenshot_urls, get_trailer_video_id, get_first_release_datetime, get_company_names, get_website_details, get_age_rating_details, get_similar_game_details
 from database import AsyncSessionLocal
 from models import Game
 from sqlalchemy import select
@@ -33,6 +33,8 @@ def list_to_json(value):
 
 
 def game_to_db_game(igdb_game: dict) -> Game:
+    involved_companies = igdb_game.get("involved_companies", [])
+    cover = igdb_game.get("cover") or {}
     return Game(
         igdb_id=igdb_game["id"],
         name=igdb_game["name"],
@@ -43,11 +45,20 @@ def game_to_db_game(igdb_game: dict) -> Game:
         themes=list_to_json(get_theme_names(igdb_game.get("themes", []))),
         summary=igdb_game.get("summary"),
         storyline=igdb_game.get("storyline"),
+        screenshots=list_to_json(get_screenshot_urls(igdb_game.get("screenshots", []),limit=3,)),
+        trailer_video_id=get_trailer_video_id(igdb_game.get("videos", [])),
+        first_release_date=get_first_release_datetime(igdb_game.get("first_release_date")),
+        developers=list_to_json(get_company_names(involved_companies,"developer",)),
+        publishers=list_to_json(get_company_names(involved_companies,"publisher",)),
+        websites=list_to_json(get_website_details(igdb_game.get("websites", []))),
+        age_ratings=list_to_json(get_age_rating_details(igdb_game.get("age_ratings", []))),
+        similar_games=list_to_json(get_similar_game_details(igdb_game.get("similar_games", []),limit=6,)),
+
         rating=igdb_game.get("rating"),
         rating_count=igdb_game.get("rating_count"),
         total_rating=igdb_game.get("total_rating"),
         total_rating_count=igdb_game.get("total_rating_count"),
-        cover_url=get_cover_url(igdb_game.get("cover")), # Ωστε το id του image να γινεται url
+        cover_url=build_igdb_image_url(cover.get("image_id"),"t_cover_big"), # Ωστε το id του image να γινεται url
     )
  
 
@@ -69,8 +80,13 @@ async def seed_games(limit: int = 500) -> None:
                     select(Game).where(Game.igdb_id == igdb_game["id"])
                 )
                 if existing:
-                    if not existing.cover_url and igdb_game.get("cover"):
-                        existing.cover_url = get_cover_url(igdb_game["cover"])
+
+                    cover = igdb_game.get("cover") or {}
+
+                    cover_url = build_igdb_image_url(cover.get("image_id"), "t_cover_big",)
+
+                    if not existing.cover_url and cover_url:
+                        existing.cover_url = cover_url
                         logger.info(f"Updated cover: {existing.name}")
                     else:    
                         skipped += 1

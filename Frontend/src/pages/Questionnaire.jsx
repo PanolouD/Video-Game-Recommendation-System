@@ -53,6 +53,35 @@ const themeOptions = [
     "Romance"
 ];
 
+const platformOptions = [
+    "PC (Microsoft Windows)",
+    "PlayStation 5",
+    "PlayStation 4",
+    "PlayStation 3",
+    "PlayStation 2",
+    "PlayStation",
+    "Xbox Series X|S",
+    "Xbox One",
+    "Xbox 360",
+    "Xbox",
+    "Nintendo Switch",
+    "Wii U",
+    "Wii",
+    "Nintendo 3DS",
+    "Nintendo DS",
+    "Nintendo GameCube",
+    "Nintendo 64",
+    "Super Nintendo Entertainment System",
+    "Nintendo Entertainment System",
+    "PlayStation Vita",
+    "PlayStation Portable",
+    "Mac",
+    "Linux",
+    "Android",
+    "iOS",
+    "Web browser"
+];
+
 function Questionnaire() {
 
     const navigate = useNavigate();
@@ -75,9 +104,9 @@ function Questionnaire() {
         {
             id: "preferred_platforms",
             question: "Which platforms do you use?",
-            type: "text",
-            placeholder: "For example: PlayStation 5",
-            helpText: "Type a platform and press Enter. You can add more than one."
+            type: "dropdown",
+            helpText: "Type a platform and press Enter. You can add more than one.",
+            options: platformOptions
         },
         {
             id: "preferred_game_modes",
@@ -121,7 +150,6 @@ function Questionnaire() {
     });
     const [dropdownOpen, setDropdownOpen] = useState(false); // Έλεγχος για το αν το dropdown ειναι ανοιχτο
     const [searchTerm, setSearchTerm] = useState(""); // Έλεγχος για το αν κρατα το κειμενο αναζητησης
-    const [platformInput, setPlatformInput] = useState(""); //Κρατάει αυτο που εχει γραψει ο χρηστης
     const [finishAttempted, setFinishAttempted] = useState(false); // Γίνεται true ΜΟΝΟ οταν πατησει finish ο χρηστης
     //States για loading και API error
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -162,41 +190,6 @@ function Questionnaire() {
        });
 
     } 
-
-    function handleAddPlatform() {
-        const platform = platformInput.trim();
-
-        if(!platform){
-            return;
-        }
-
-        const platformAlreadyExists = 
-            answers.preferred_platforms.some(
-                (currentPlatform) =>
-                    currentPlatform.toLowerCase() === platform.toLowerCase()
-            );
-
-            if(!platformAlreadyExists) {
-                setAnswers({
-                    ...answers,
-                    preferred_platforms: [
-                        ...answers.preferred_platforms,
-                        platform
-                    ]
-                });
-            }
-
-            setPlatformInput("");
-
-    }
-
-    function handlePlatformKeyDown(event) { //Με αυτο το function ο χρηστης μπορει να πατησει Enter | κόμμα | Add
-
-        if (event.key === "Enter" || event.key === ",") {
-            event.preventDefault();
-            handleAddPlatform();
-        }
-}
 
     function handlePrevious() {
         if(currentQuestion > 0){
@@ -346,48 +339,7 @@ function Questionnaire() {
                             </div>
                         )}
 
-                        {question.type === "text" && (
-                            <div className="platform-input-section">
-
-                                <div className="platform-input-row">
-
-                                    <input
-                                        type="text"
-                                        className="platform-input"
-                                        placeholder={question.placeholder}
-                                        value={platformInput}
-                                        onChange={(event) =>
-                                            setPlatformInput(event.target.value)
-                                        }
-                                        onKeyDown={handlePlatformKeyDown}
-                                    />
-
-                                    <button
-                                        type="button"
-                                        className="add-platform-button"
-                                        onClick={handleAddPlatform}
-                                        disabled={!platformInput.trim()}
-                                    >
-                                        Add
-                                    </button>
-
-                                </div>
-
-                                <div className="selected-options">
-                                    {answers.preferred_platforms.map((platform) => (
-                                        <button
-                                            type="button"
-                                            key={platform}
-                                            onClick={() => handleAnswer(platform)}
-                                        >
-                                            {platform}
-                                            <span> ×</span>
-                                        </button>
-                                    ))}
-                                </div>
-
-                            </div>
-                        )}
+                        
 
                         
                         {finishAttempted && currentQuestion === questions.length - 1 && !allQuestionsAnswered && (    // Με αυτό εμφανίζεται το μήνυμα μόνο όταν ο χρηστης πατησει το finish button και χωρις να εχει απαντησει σε ολες τις ερωτησεις
