@@ -5,6 +5,8 @@ import SignUp from "./pages/SignUp";
 import Questionnaire from "./pages/Questionnaire";
 import Recommendations from "./pages/Recommendations";
 import Library from "./pages/Library";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 import NavBar from "./components/NavBar";
 
@@ -23,6 +25,8 @@ function App() {
         <Route path="/questionnaire" element={<Questionnaire />} />
         <Route path="/recommendations" element={<Recommendations />} />
         <Route path="/library" element={<Library />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
     </BrowserRouter>
     

@@ -16,6 +16,8 @@ function Recommendations() {
     const [recommendations, setRecommendations] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
+    const [needsQuestionnaire, setNeedsQuestionnaire] =
+    useState(false);
 
     const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -26,6 +28,7 @@ function Recommendations() {
         try{
           setIsLoading(true);
           setError("");
+          setNeedsQuestionnaire(false);
 
           const data = await getRecommendations(10);
 
@@ -41,6 +44,10 @@ function Recommendations() {
           if (requestError.status === 401) {
             localStorage.removeItem("accessToken");
             navigate("/login");
+            return;
+          }
+          if (requestError.status === 404 && requestError.message?.toLowerCase().includes("questionnaire")){
+            setNeedsQuestionnaire(true);
             return;
           }
 
@@ -80,6 +87,36 @@ function Recommendations() {
       );
     }
 
+    if (needsQuestionnaire) {
+      return (
+          <main className="recommendations-page">
+              <div className="recommendations-empty" role="status">
+                  <span className="recommendations-empty-icon" aria-hidden="true">
+                      📝
+                  </span>
+
+                  <h2>Complete your questionnaire</h2>
+
+                  <p>
+                      We need to learn about your gaming
+                      preferences before we can recommend
+                      games selected for you.
+                  </p>
+
+                  <div className="recommendations-empty-actions">
+                      <Link to="/questionnaire" className="recommendations-empty-primary">
+                          Start questionnaire
+                      </Link>
+
+                      <Link to="/" className="recommendations-empty-secondary">
+                          Explore popular games
+                      </Link>
+                  </div>
+              </div>
+          </main>
+      );
+      
+    }
 
     if (error) {
       return (

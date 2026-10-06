@@ -84,6 +84,12 @@ function Login() {
                 </div>
             </div>
 
+            <div className="auth-forgot-password">
+              <Link to="/forgot-password">
+                Forgot Password?
+              </Link>
+            </div>
+
             {/* Εμφάνιση error αν υπάρχει */}
             {error && <p className="auth-error">{error}</p>}
 

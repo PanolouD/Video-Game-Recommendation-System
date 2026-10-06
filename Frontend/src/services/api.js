@@ -131,3 +131,32 @@ export function removeGameFromLibrary(gameId) {
 export function getLibraryGameStatus(gameId) {
     return apiRequest(`/api/library/${gameId}/status`);
 }
+
+export function requestPasswordReset(email) {
+    return apiRequest("/api/users/forgot-password", {
+        method: "POST",
+
+        headers: {
+            "Content-type": "application/json",
+        },
+
+        body: JSON.stringify({
+            email: email,
+        }),
+    });
+}
+
+export function resetPassword(token, newPassword) {
+    return apiRequest("/api/users/reset-password", {
+        method: "POST",
+
+        headers: {
+            "Content-type": "application/json",
+        },
+
+        body: JSON.stringify({
+            token: token,
+            new_password: newPassword,
+        }),
+    });
+}

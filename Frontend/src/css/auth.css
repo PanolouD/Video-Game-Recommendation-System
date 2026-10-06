@@ -176,3 +176,40 @@
 .auth-switch a:hover {
     text-decoration: underline;
 }
+
+.auth-forgot-password {
+    margin-top: -10px;
+    text-align: right;
+}
+
+.auth-forgot-password a {
+    color: #bdbdbd;
+
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.auth-forgot-password a:hover {
+    color: white;
+    text-decoration: underline;
+}
+
+.auth-success {
+    margin: 0;
+    padding: 12px;
+
+    border: 1px solid #4f8f55;
+    border-radius: 6px;
+
+    background-color: rgba(79, 143, 85, 0.15);
+    color: #9ee493;
+
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.auth-button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+}
