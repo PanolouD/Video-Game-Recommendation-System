@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+import LibraryButton from "./LibraryButton";
+
 import "../css/GameDetailsCard.css";
 
 function formatReleaseDate(value) {
@@ -428,17 +430,21 @@ function GameDetailsCard({ game, matchScore, rank }) {
                         )}
                     </dl>
 
-                    {preferredWebsite && (
-                        <a
-                            className="game-details-store-link"
-                            href={preferredWebsite.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            View on {preferredWebsite.type}
-                            <span aria-hidden="true"> ↗</span>
-                        </a>
-                    )}
+                    <div className="game-details-actions">
+                        {preferredWebsite && (
+                            <a
+                                className="game-details-store-link"
+                                href={preferredWebsite.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                View on {preferredWebsite.type}
+                                <span aria-hidden="true"> ↗</span>
+                            </a>
+                        )}
+
+                        <LibraryButton gameId={game.id} />
+                    </div>    
 
                     {game.storyline && (
                         <details className="game-details-storyline">

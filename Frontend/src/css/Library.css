@@ -58,3 +58,44 @@
     font-size: 14px;
     line-height: 1.4;
 }
+
+.library-message,
+.library-error,
+.library-empty {
+    width: 100%;
+    max-width: 700px;
+
+    margin: 80px auto;
+    padding: 30px;
+
+    text-align: center;
+}
+
+.library-error {
+    color: #ff7777;
+}
+
+.library-empty {
+    border: 1px solid #333;
+    border-radius: 12px;
+
+    background-color: #181818;
+    color: white;
+}
+
+.library-empty h2 {
+    margin: 0 0 12px;
+}
+
+.library-empty p {
+    margin: 0;
+    color: #aaa;
+}
+
+.library-saved-date {
+    margin: 10px 0 0;
+
+    color: #888;
+    font-size: 13px;
+    text-align: center;
+}

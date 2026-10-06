@@ -1,61 +1,112 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import VideoGameCard from "../components/VideoGameCard";
+import { getLibrary } from "../services/api";
+
 import "../css/Library.css"
 
 function Library() {
 
 
+  const navigate = useNavigate();
 
-     const libraryGames = [
+  const [libraryEntries, setLibraryEntries] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-      {
-         id:1,
-         title: "The Witcher 3",
-         image: "https://placehold.co/220x280",
-         genre: "RPG",
-         rating: 9.4,
-         userRating: 10,
-         review: "Amazing story and world" 
-      },
-      { 
-        id: 2,
-        title: "Elden Ring",
-        image: "https://placehold.co/220x280",
-        genre: "Action RPG",
-        rating: 9.5,
-        userRating: 9,
-        review: "Great combat and exploration."
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadLibrary() {
+        try {
+            setLoading(true);
+            setError("");
+
+            const data = await getLibrary(); // Τα δεδομένα απο το backend
+
+            if (!cancelled) {
+                setLibraryEntries(Array.isArray(data) ? data : []);
+              }
+        } catch (error) {
+            if (cancelled) {
+                return;
+            }
+
+            if (error.status === 401) {
+                navigate("/login");
+                return;
+            }
+
+            setError(
+                error.message ||
+                "Could not load your library."
+            );
+         } finally {
+          if (!cancelled) {
+              setLoading(false);
+            }
+          }
       }
-     ]; 
+
+      loadLibrary();
+
+      return () => {
+          cancelled = true;
+      };
+    }, [navigate]);
+
+    if (loading) {
+        return (
+            <main className="library-page">
+                <p className="library-message">
+                    Loading your library...
+                </p>
+            </main>
+        );
+    }
+
+
+    if (error) {
+        return (
+            <main className="library-page">
+                <p className="library-error">
+                    {error}
+                </p>
+            </main>
+        );
+    }
 
   return(
     <main className="library-page">
 
       <section className="library-header">
         <h1>My Library</h1>
-        <p>Games you have played and reviewd</p>
+        <p>Games you have saved to your personal library</p>
       </section>
 
-      <section className="library-grid">
-          {libraryGames.map((game) => (
-           <div className="library-item" key={game.id}> {/* το key πρεπει να μπει στο πρωτο element που επιστρεφει το .map */}
-              <VideoGameCard 
-                  title={game.title}
-                  image={game.image}
-                  genre={game.genre}
-                  rating={game.rating}
-                />
+      {libraryEntries.length === 0 ? (
+                <section className="library-empty">
+                    <h2>Your library is empty</h2>
 
-              <div className="library-review">
-                <h3>Your Review</h3>
-                <p className="user-rating"> {game.userRating}/10 </p>
+                    <p>
+                        Add games you like and they will appear here.
+                    </p>
+                </section>
+            ) : (
+                <section className="library-grid">
+                    {libraryEntries.map((entry) => (
+                        <div className="library-item" key={entry.id}>
+                            <VideoGameCard game={entry.game} />
 
-                <p className="review-text"> {game.review} </p>
-              </div>
-
-            </div>
-          ))}  
-          
-      </section>
+                            <p className="library-saved-date">
+                                Saved{" "} 
+                                {new Date(entry.saved_at).toLocaleDateString()}
+                            </p>
+                        </div>
+                    ))}
+                </section>
+            )}
 
     </main>
   );

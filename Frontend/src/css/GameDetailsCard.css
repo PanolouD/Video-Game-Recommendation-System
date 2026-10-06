@@ -734,3 +734,17 @@
 .game-details-media-options > .cover-option > img {
     object-fit: contain;
 }
+
+.game-details-actions {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 36px;
+
+    margin-top: 16px;
+}
+
+.game-details-actions .game-details-store-link,
+.game-details-actions .library-button-container {
+    margin-top: 0;
+}

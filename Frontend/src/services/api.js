@@ -18,6 +18,10 @@ export async function apiRequest(path, options = {}){ //path ειναι το end
         },    
     });
 
+    if (response.status === 204) {
+    return null;
+}
+
     const contentType = response.headers.get("content-type");
 
     let data = null;
@@ -99,4 +103,31 @@ export function getRecommendations(topN = 10) {
     return apiRequest(
         `/api/recommendations/me?top_n=${topN}`
     );
+}
+
+// Επιστρέφει όλα τα παιχνίδια που έχει αποθηκεύσει ο συνδεδεμένος χρήστης
+export function getLibrary() {
+    return apiRequest("/api/library");
+}
+
+
+// Προσθέτει ένα παιχνίδι στη Library. Το gameId είναι το game.id της δικής μας βάσης, όχι το game.igdb_id
+export function addGameToLibrary(gameId) {
+    return apiRequest(`/api/library/${gameId}`, {
+        method: "POST",
+    });
+}
+
+
+// Αφαιρεί ένα παιχνίδι από τη Library
+export function removeGameFromLibrary(gameId) {
+    return apiRequest(`/api/library/${gameId}`, {
+        method: "DELETE",
+    });
+}
+
+
+// Ελέγχει αν ένα συγκεκριμένο παιχνίδι βρίσκεται ήδη στη Library του χρήστη
+export function getLibraryGameStatus(gameId) {
+    return apiRequest(`/api/library/${gameId}/status`);
 }

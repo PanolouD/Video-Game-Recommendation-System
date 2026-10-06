@@ -1,0 +1,60 @@
+.library-button-container {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    margin-top: 16px;
+}
+
+.library-button {
+    padding: 11px 18px;
+
+    border: 1px solid #8ee58b;
+    border-radius: 8px;
+
+    background-color: #8ee58b;
+    color: #111;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.library-button:hover:not(:disabled) {
+    background-color: #a4f2a1;
+}
+
+.library-button.saved {
+    border-color: #666;
+
+    background-color: #292929;
+    color: #eee;
+}
+
+.library-button.saved:hover:not(:disabled) {
+    border-color: #ff7777;
+
+    background-color: #3a2323;
+    color: #ff9999;
+}
+
+.library-button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.library-button-error {
+    max-width: 240px;
+
+    margin: 7px 0 0;
+
+    color: #ff7777;
+    font-size: 12px;
+}
