@@ -67,7 +67,7 @@ function GameDetailsCard({ game, matchScore, rank }) {
 
     useEffect(() => {
         setActiveMedia({type: game?.cover_url ? "cover" : "image", index: 0,});
-    }, [game?.id]);
+    }, [game?.id, game?.cover_url]);
     
     if (!game) {
         return null;

@@ -13,10 +13,30 @@
 }
 
 .navbar-logo{
-  color: white;
+  width: 58px;
+  height: 58px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  border-radius: 50%;
+
+  background-color: white;
   text-decoration: none;
-  font-size: 24px;
-  font-weight: bold;
+}
+
+.navbar-logo img{
+  width: 78px;
+  height: 78px;
+
+  max-width: none;
+
+  object-fit: cover;
+
+  transform: scale(0.8);
 }
 
 .navbar-links {
@@ -50,4 +70,41 @@
 
 .navbar-logout:hover {
   text-decoration: underline;
+}
+
+.navbar-profile {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+    overflow: hidden;
+
+    padding: 0;
+
+    border: 2px solid #555;
+    border-radius: 50%;
+
+    background-color: #292929;
+
+    transition:
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.navbar-profile:hover {
+    border-color: #9ee493;
+    transform: scale(1.05);
+}
+
+.navbar-profile img {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
 }

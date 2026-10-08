@@ -1,5 +1,16 @@
 const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
+export function getApiAssetUrl(path) {
+    if(!path){
+        return null;
+    }
+    if(path.startsWith("http://") || path.startsWith("https://")){
+        return path;
+    }
+
+    return `${API_BASE_URL}${path}`;
+}
+
 export async function apiRequest(path, options = {}){ //path ειναι το endpoint που θελουμε να καλεσουμε ανα στιγμη | options ειναι ενα object με τις ρυθμισεις του request
    
     //Παιρνουμε το JWT απο το localStorage
@@ -158,5 +169,50 @@ export function resetPassword(token, newPassword) {
             token: token,
             new_password: newPassword,
         }),
+    });
+}
+
+export function updateUser(userId, userData) {
+    return apiRequest(`/api/users/${userId}`, {
+        method: "PATCH",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify(userData),
+    });
+}
+
+export function uploadProfilePicture(userId, file) {
+    const formData = new FormData();
+
+    formData.append("file", file);
+
+    return apiRequest(`/api/users/${userId}/picture`, { // Δεν βαζουμε headers γιατι ο browser το δημιουργει αυτόματα
+        method: "PATCH",
+        body: formData,
+    });
+}
+
+export function deleteProfilePicture(userId) {
+    return apiRequest(`/api/users/${userId}/picture`, {
+        method: "DELETE",
+    });
+}
+
+export function changePassword(currentPassword, newPassword) {
+    return apiRequest("/api/users/me/password", {
+        method: "PATCH",
+
+        headers: {"Content-type": "application/json"},
+
+        body: JSON.stringify({current_password: currentPassword, new_password: newPassword}),
+    });
+}
+
+export function deleteAccount(userId) {
+    return apiRequest(`/api/users/${userId}`, {
+        method: "DELETE",
     });
 }
