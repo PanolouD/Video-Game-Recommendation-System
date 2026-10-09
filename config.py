@@ -1,9 +1,12 @@
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=BASE_DIR / ".env",
         env_file_encoding="utf-8",
     )#Εδω αυτοματα φορτωνουν τιμες απο ενα .env αρχειο(αυτο το αρχειο χρησιμοποιειται για να αποθηκεύουμε ευαισθητα configuration πχ η αποθηκευση secret_keys στο source control.) 
 
