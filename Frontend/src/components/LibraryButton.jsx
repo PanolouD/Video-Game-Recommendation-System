@@ -1,15 +1,19 @@
 import { useEffect, useState } from "react";
+import {Link, useLocation, useNavigate} from "react-router-dom";
 
-import {
-    addGameToLibrary,
-    getLibraryGameStatus,
-    removeGameFromLibrary,
-} from "../services/api";
+import { addGameToLibrary, getLibraryGameStatus, removeGameFromLibrary,} from "../services/api";
 
 import "../css/LibraryButton.css";
 
 
 function LibraryButton({ gameId }) {
+
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const token = localStorage.getItem("accessToken");
+    const isLoggedIn = Boolean(token);
+
     const [isSaved, setIsSaved] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -19,8 +23,10 @@ function LibraryButton({ gameId }) {
         let cancelled = false;
 
         async function loadLibraryStatus() {
-            if (!gameId) {
+            if (!gameId || isLoggedIn) {
+                setIsSaved(false);
                 setLoading(false);
+                setError("");
                 return;
             }
 
@@ -52,10 +58,21 @@ function LibraryButton({ gameId }) {
         return () => {
             cancelled = true;
         };
-    }, [gameId]);
+    }, [gameId, isLoggedIn]);
 
 
     async function handleLibraryClick() {
+        if (!isLoggedIn) {
+            navigate("/login", {
+                state: {
+                    from: location.pathname,
+                    message:
+                        "Log in to add games to your Library.",
+                },
+            });
+
+            return;
+        }
         if (!gameId || loading) {
             return;
         }
@@ -110,13 +127,15 @@ function LibraryButton({ gameId }) {
                         : "library-button"
                 }
                 onClick={handleLibraryClick}
-                disabled={loading || !gameId}
+                disabled={(isLoggedIn && loading) || !gameId}
             >
-                {loading
-                    ? "Checking..."
-                    : isSaved
-                        ? "✓ In Library"
-                        : "+ Add to Library"}
+                {isLoggedIn
+                    ? "Add to Library"
+                    : loading
+                        ? "Checking..."
+                        : isSaved
+                            ? "✓ In Library"
+                            : "+ Add to Library"}
             </button>
 
             {error && (

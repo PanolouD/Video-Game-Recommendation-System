@@ -214,6 +214,20 @@ function Questionnaire() {
             return;
         }
 
+        const token = localStorage.getItem("accessToken");
+
+        if (!token) { // Ετσι το frontend δεν επιχειρει καν να αποθηκευσει χωρις token
+            navigate("/login", {
+                state: {
+                    from: "/questionnaire",
+                    message:
+                        "Log in to save your preferences and receive recommendations.",
+                },
+            });
+
+            return;
+        }
+
         setIsSubmitting(true);
         setSubmissionError("");
 
@@ -240,8 +254,7 @@ function Questionnaire() {
         console.log(answers);
         
     }
-    
-    
+   
 
     return (
         <main className="questionnaire-page">

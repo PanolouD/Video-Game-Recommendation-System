@@ -1,4 +1,5 @@
 import {useEffect, useState} from "react";
+import {Link} from "react-router-dom";
 
 import VideoGameCard from "../components/VideoGameCard";
 import {getGames} from "../services/api";
@@ -39,27 +40,92 @@ function Home() {
     (secondGame.total_rating_count ?? 0) - (firstGame.total_rating_count ?? 0)).slice(0, 40);
 
 
-  const filteredGames = searchQuery.trim() ? games.filter((game) => 
-    game.name.toLowerCase().includes(searchQuery.trim().toLocaleLowerCase())) 
-  : popularGames;
-
-
   return(
     <>
 
-      <section className="home-search">
-        <h1>Find Games like </h1>
-          <h4>Enter the title of game you like to find.</h4>  
-            <form className="search-form" onSubmit={(event) => event.preventDefault()}> {/* Ετσι το Enter δεν ανανεωνει την σελιδα */}
-              <input 
-                type = "search"
-                placeholder = "Games like... "
-                className="search-bar"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)} // Ενημερώνει το searchQuery κάθε φορά που αλλάζει το input
-              />
-            </form>
-      </section>  
+      <section className="home-hero">
+          <div className="home-hero-content">
+              <p className="home-hero-label">
+                  Personalized game discovery
+              </p>
+
+              <h1>
+                  Find games that actually match
+                  <span> your preferences.</span>
+              </h1>
+
+              <p className="home-hero-description">
+                  Tell us which genres, themes, platforms,
+                  game modes and perspectives you enjoy.
+                  We will analyze your choices and recommend
+                  games selected specifically for you.
+              </p>
+
+              <div className="home-hero-actions">
+                  <Link
+                      to="/questionnaire"
+                      className="home-primary-action"
+                  >
+                      Find my games
+                      <span aria-hidden="true"> →</span>
+                  </Link>
+
+                  <Link
+                      to="/recommendations"
+                      className="home-secondary-action"
+                  >
+                      View my recommendations
+                  </Link>
+              </div>
+          </div>
+
+          <div className="home-process">
+              <article className="home-process-step">
+                  <span className="home-process-number">
+                      01
+                  </span>
+
+                  <div>
+                      <h2>Share your preferences</h2>
+
+                      <p>
+                          Choose the genres, themes and ways
+                          you enjoy playing.
+                      </p>
+                  </div>
+              </article>
+
+              <article className="home-process-step">
+                  <span className="home-process-number">
+                      02
+                  </span>
+
+                  <div>
+                      <h2>We find the best matches</h2>
+
+                      <p>
+                          Our recommendation system ranks games
+                          according to your answers.
+                      </p>
+                  </div>
+              </article>
+
+              <article className="home-process-step">
+                  <span className="home-process-number">
+                      03
+                  </span>
+
+                  <div>
+                      <h2>Discover your next game</h2>
+
+                      <p>
+                          Explore detailed results and save your
+                          favorites to your Library.
+                      </p>
+                  </div>
+              </article>
+          </div>
+      </section> 
 
       <section className="popular-games"> 
 
@@ -75,14 +141,14 @@ function Home() {
               <p className="home-error">{error}</p>
             )}
 
-            {!loading && !error && filteredGames.length === 0 && (
-              <p className="home-message">No games found</p>
+            {!loading && !error && popularGames.length === 0 && (
+              <p className="home-message">No games available</p>
             )}
 
 
-            {!loading && !error && filteredGames.length > 0 &&(
+            {!loading && !error && popularGames.length > 0 &&(
               <div className="game-grid">
-                {filteredGames.map((game) => (
+                {popularGames.map((game) => (
                   <VideoGameCard 
                     key={game.id}
                     game={game}

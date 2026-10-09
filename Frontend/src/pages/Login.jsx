@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {FaEye, FaEyeSlash} from "react-icons/fa";
 import {loginUser} from "../services/api";
 import "../css/auth.css"
@@ -12,6 +12,10 @@ function Login() {
   const [error, setError] = useState("");
   
   const navigate = useNavigate(); //μπορούμε να αλλάζουμε σελίδα
+
+  const location = useLocation();
+
+  const loginMessage = location.state?.message || "";
 
   async function handleSubmit(e) {
     e.preventDefault(); //Σταματάει το refresh της σελίδας
@@ -42,8 +46,10 @@ function Login() {
     <main className="auth-page">
         <div className="auth-card">
 
-          <h1>Welcome Backk</h1>
+          <h1>Welcome Pisw Bitchezzzzz</h1>
           <p className="auth-subtitle"> Log in to continue discovering games.</p>
+
+          {loginMessage && (<p className="auth-info">{loginMessage}</p>)}
 
           <form className="auth-form" onSubmit={handleSubmit}>
 
@@ -53,7 +59,7 @@ function Login() {
                 id="email"
                 type="email"
                 required
-                placeholder="Enter your Email"
+                placeholder="Enter your Email if you dare"
                 value={email}
                 autoComplete="email"
                 onChange={(e) => setEmail(e.target.value)}
@@ -67,7 +73,7 @@ function Login() {
                     id="password"
                     type={showPassword ? "text" : "password"}  
                     required
-                    placeholder="Password"
+                    placeholder="Password NOWWWW"
                     value={password}
                     autoComplete="current-password"
                     onChange={(e) => setPassword(e.target.value)}
@@ -93,10 +99,10 @@ function Login() {
             {/* Εμφάνιση error αν υπάρχει */}
             {error && <p className="auth-error">{error}</p>}
 
-            <button type="submit"  className="auth-button">Σύνδεση</button>
+            <button type="submit"  className="auth-button">Login</button>
           </form>
 
-          <p className="auth-switch">Δεν έχεις λογαριασμό; <Link to="/signup"> Εγγραφή </Link></p>
+          <p className="auth-switch">You DO NOT have a naccount? STUPID  PENDEJO<Link to="/signup"> Sign down </Link></p>
         </div>  
     </main>
   );

@@ -88,6 +88,8 @@ function NavBar(){
                     </>
                 ) : (
                     <>
+                        <Link to="/questionnaire">Questionnaire</Link>
+                        <Link to="/recommendations">Recommendations</Link>
                         <Link to="/login">Login</Link>
                         <Link to="/signup">Sign Up</Link>
                     </>

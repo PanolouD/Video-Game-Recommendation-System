@@ -1,32 +1,244 @@
-.home-search {
+.home-hero {
+    width: calc(100% - 48px);
+    max-width: 1250px;
+
+    margin: 40px auto 70px;
+    padding: 70px 60px 45px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #2e2e2e;
+    border-radius: 20px;
+
+    background:
+        radial-gradient(
+            circle at 85% 20%,
+            rgba(0, 153, 255, 0.18),
+            transparent 32%
+        ),
+        radial-gradient(
+            circle at 15% 80%,
+            rgba(255, 45, 105, 0.15),
+            transparent 30%
+        ),
+        #151515;
+
+    color: white;
+
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+}
+
+.home-hero-content {
+    max-width: 850px;
+    margin: 0 auto 60px;
+
     text-align: center;
-    padding: 60px 20px;
 }
 
-.home-search h1 {
-    font-size: 42px;
-    margin-bottom: 15px;
+.home-hero-label {
+    margin: 0 0 18px;
+
+    color: #9ee493;
+
+    font-size: 13px;
+    font-weight: bold;
+
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
 }
 
-.search-bar {
-    width: 100%;
-    max-width: 500px;
-    padding: 12px 16px;
-    font-size: 16px;
+.home-hero h1 {
+    max-width: 850px;
+
+    margin: 0 auto 24px;
+
+    font-size: clamp(38px, 5vw, 68px);
+    line-height: 1.08;
+    letter-spacing: -2px;
+}
+
+.home-hero h1 span {
+    color: #9ee493;
+}
+
+.home-hero-description {
+    max-width: 700px;
+
+    margin: 0 auto;
+
+    color: #bdbdbd;
+
+    font-size: 18px;
+    line-height: 1.7;
+}
+
+.home-hero-actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 14px;
+
+    margin-top: 35px;
+}
+
+.home-primary-action,
+.home-secondary-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    padding: 14px 22px;
+
+    border-radius: 8px;
+
+    font-size: 15px;
+    font-weight: bold;
+    text-decoration: none;
+
+    transition:
+        transform 0.2s ease,
+        background-color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.home-primary-action {
+    border: 1px solid #9ee493;
+
+    background-color: #9ee493;
+    color: #111;
+}
+
+.home-primary-action:hover {
+    background-color: #b0f0a7;
+    transform: translateY(-2px);
+}
+
+.home-secondary-action {
+    border: 1px solid #555;
+
+    background-color: rgba(255, 255, 255, 0.04);
+    color: white;
+}
+
+.home-secondary-action:hover {
+    border-color: #9ee493;
+    color: #9ee493;
+    transform: translateY(-2px);
+}
+
+.home-process {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+
+    padding-top: 35px;
+
+    border-top: 1px solid #333;
+}
+
+.home-process-step {
+    display: flex;
+    gap: 16px;
+
+    padding: 20px;
+
+    border: 1px solid #303030;
+    border-radius: 12px;
+
+    background-color: rgba(255, 255, 255, 0.035);
+}
+
+.home-process-number {
+    color: #9ee493;
+
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.home-process-step h2 {
+    margin: 0 0 8px;
+
+    font-size: 17px;
+}
+
+.home-process-step p {
+    margin: 0;
+
+    color: #999;
+
+    font-size: 14px;
+    line-height: 1.5;
 }
 
 .popular-games {
-    padding: 40px;
+    padding: 0 40px 60px;
 }
 
-.popular-games h2 {
+.popular-games > h2 {
+    margin-bottom: 32px;
+
     text-align: center;
-    margin-bottom: 30px;
+    font-size: 30px;
 }
 
 .game-grid {
     display: flex;
     justify-content: center;
-    gap: 25px;
     flex-wrap: wrap;
+    gap: 25px;
+
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.home-message,
+.home-error {
+    text-align: center;
+}
+
+.home-error {
+    color: #ff7777;
+}
+
+@media (max-width: 850px) {
+    .home-hero {
+        padding: 55px 30px 35px;
+    }
+
+    .home-process {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 520px) {
+    .home-hero {
+        width: calc(100% - 24px);
+
+        margin-top: 20px;
+        padding: 45px 20px 25px;
+    }
+
+    .home-hero h1 {
+        letter-spacing: -1px;
+    }
+
+    .home-hero-description {
+        font-size: 16px;
+    }
+
+    .home-hero-actions {
+        flex-direction: column;
+    }
+
+    .home-primary-action,
+    .home-secondary-action {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .popular-games {
+        padding: 0 16px 40px;
+    }
 }

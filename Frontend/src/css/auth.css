@@ -14,7 +14,7 @@
 
     padding: 35px;
 
-    background-color: #181818;
+    background-color: #929b41;
     color: white;
 
     border-radius: 12px;
@@ -63,7 +63,7 @@
     border: 1px solid #444;
     border-radius: 6px;
 
-    background-color: #222;
+    background-color: #816c27;
     color: white;
 
     font-size: 16px;
@@ -76,7 +76,7 @@
 }
 
 .auth-field input::placeholder {
-    color: #777;
+    color: #2e2b2b;
 }
 
 /* Password input and eye icons */
@@ -147,6 +147,20 @@
     background-color: #dddddd;
 
     transform: translateY(-2px);
+}
+
+.auth-info {
+    margin: 0 0 20px;
+    padding: 12px;
+
+    border: 1px solid #4d718c;
+    border-radius: 6px;
+
+    background-color: rgba(77, 113, 140, 0.15);
+    color: #b9dcf5;
+
+    font-size: 14px;
+    line-height: 1.5;
 }
 
 .auth-error {
