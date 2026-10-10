@@ -1,13 +1,68 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+:root {
+    --color-background: #0b0d12;
+    --color-surface: #151821;
+    --color-surface-light: #1e2330;
+
+    --color-primary: #1597f4;
+    --color-secondary: #ff2d69;
+    --color-accent: #9ee493;
+
+    --color-text: #f5f7fa;
+    --color-text-muted: #949bab;
+
+    --color-border: #2a3040;
+    --color-error: #ff6b6b;
+
+    --border-radius: 12px;
+    --page-width: 1300px;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+* {
+    box-sizing: border-box;
+}
+
+html {
+    background-color: var(--color-background);
+}
+
+body {
+    margin: 0;
+
+    background:
+        radial-gradient(
+            circle at 15% 10%,
+            rgba(21, 151, 244, 0.08),
+            transparent 28%
+        ),
+        radial-gradient(
+            circle at 90% 35%,
+            rgba(255, 45, 105, 0.06),
+            transparent 30%
+        ),
+        var(--color-background);
+
+    color: var(--color-text);
+
+    font-family:
+        Inter,
+        Arial,
+        sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+.app-shell {
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.app-content {
+    flex: 1;
 }
