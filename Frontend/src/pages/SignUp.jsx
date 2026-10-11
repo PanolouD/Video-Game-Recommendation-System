@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {FaEye, FaEyeSlash} from "react-icons/fa";
 import {registerUser} from "../services/api";
+import PasswordInputIcon from "../components/PasswordInputIcon";
+
 import "../css/auth.css"
 
 function SignUp() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   
   const navigate = useNavigate();
@@ -75,27 +75,14 @@ function SignUp() {
 
             <div className="auth-field">
               <label htmlFor="password">Password</label>
-                <div className="password-input-container">
-                  <input
+                <PasswordInputIcon
                     id="password"
-                    type={showPassword ? "text" : "password"}
-                    required
-                    minLength={8}
-                    placeholder="Password"
                     value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    placeholder="Password"
                     autoComplete="new-password"
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-
-                  <button 
-                    type="button"  
-                    className="password-toggle"
-                    onClick={() => setShowPassword(!showPassword)}
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
-                    {showPassword ? <FaEye /> : <FaEyeSlash />}  {/* Αλλαζουμε το icon απο κλειστο σε ανοιχτο */}
-                  </button>
-                </div>  
+                    minLength={8}
+                /> 
             </div>
 
             <button type="submit" className="auth-button">Create Account</button>

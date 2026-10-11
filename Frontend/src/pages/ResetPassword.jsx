@@ -1,10 +1,9 @@
 import { useState } from "react";
-import {
-    Link,
-    useSearchParams,
-} from "react-router-dom";
+import {Link, useSearchParams,} from "react-router-dom";
 
 import { resetPassword } from "../services/api";
+
+import PasswordInputIcon from "../components/PasswordInputIcon";
 
 import "../css/auth.css";
 
@@ -15,8 +14,7 @@ function ResetPassword() {
     const token = searchParams.get("token");
 
     const [newPassword, setNewPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] =
-        useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -105,18 +103,14 @@ function ResetPassword() {
                                 New password
                             </label>
 
-                            <input
+                            <PasswordInputIcon
                                 id="new-password"
-                                type="password"
-                                required
-                                minLength={8}
-                                autoComplete="new-password"
                                 value={newPassword}
-                                onChange={(event) =>
-                                    setNewPassword(
-                                        event.target.value
-                                    )
-                                }
+                                onChange={(event) => setNewPassword(event.target.value)}
+                                placeholder="Enter your new password"
+                                autoComplete="new-password"
+                                minLength={8}
+                                disabled={loading}
                             />
                         </div>
 
@@ -125,18 +119,14 @@ function ResetPassword() {
                                 Confirm password
                             </label>
 
-                            <input
+                            <PasswordInputIcon
                                 id="confirm-password"
-                                type="password"
-                                required
-                                minLength={8}
-                                autoComplete="new-password"
                                 value={confirmPassword}
-                                onChange={(event) =>
-                                    setConfirmPassword(
-                                        event.target.value
-                                    )
-                                }
+                                onChange={(event) => setConfirmPassword(event.target.value)}
+                                placeholder="Confirm your new password"
+                                autoComplete="new-password"
+                                minLength={8}
+                                disabled={loading}
                             />
                         </div>
 

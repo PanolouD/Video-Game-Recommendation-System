@@ -81,6 +81,7 @@
 
 /* Password input and eye icons */
 
+/*
 .password-input-container {
     position: relative;
 
@@ -121,7 +122,7 @@
 .password-toggle:hover {
     color: white;
 }
-
+*/
 .auth-button {
     margin-top: 5px;
 

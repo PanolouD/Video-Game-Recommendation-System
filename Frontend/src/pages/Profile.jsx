@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import PasswordInputIcon from "../components/PasswordInputIcon";
 
 import {
     updateUser,
@@ -427,35 +428,29 @@ function Profile() {
                         <label htmlFor="current-password">
                             Current password
                         </label>
-
-                        <input
-                            id="current-password"
-                            type="password"
-                            required
-                            autoComplete="current-password"
-                            value={currentPassword}
-                            onChange={(event) =>
-                                setCurrentPassword(event.target.value)
-                            }
-                        />
+                            <PasswordInputIcon
+                                id="current-password"
+                                value={currentPassword}
+                                onChange={(event) => setCurrentPassword(event.target.value)}
+                                placeholder="Enter your current password"
+                                autoComplete="current-password"
+                                disabled={passwordLoading}
+                            />
                     </div>
 
                     <div className="profile-field">
                         <label htmlFor="profile-new-password">
                             New password
                         </label>
-
-                        <input
-                            id="profile-new-password"
-                            type="password"
-                            required
-                            minLength={8}
-                            autoComplete="new-password"
-                            value={newPassword}
-                            onChange={(event) =>
-                                setNewPassword(event.target.value)
-                            }
-                        />
+                            <PasswordInputIcon
+                                id="profile-new-password"
+                                value={newPassword}
+                                onChange={(event) => setNewPassword(event.target.value)}
+                                placeholder="Enter your new password"
+                                autoComplete="new-password"
+                                minLength={8}
+                                disabled={passwordLoading}
+                            />
                     </div>
 
                     <div className="profile-field">
@@ -463,17 +458,16 @@ function Profile() {
                             Confirm new password
                         </label>
 
-                        <input
-                            id="confirm-new-password"
-                            type="password"
-                            required
-                            minLength={8}
-                            autoComplete="new-password"
-                            value={confirmPassword}
-                            onChange={(event) =>
-                                setConfirmPassword(event.target.value)
-                            }
-                        />
+                            <PasswordInputIcon
+                                id="confirm-new-password"
+                                value={confirmPassword}
+                                onChange={(event) => setConfirmPassword(event.target.value)}
+                                placeholder="Confirm your new password"
+                                autoComplete="new-password"
+                                minLength={8}
+                                disabled={passwordLoading}
+                            />
+
                     </div>
 
                     {passwordError && (

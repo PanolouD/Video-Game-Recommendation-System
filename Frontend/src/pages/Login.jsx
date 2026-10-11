@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import {FaEye, FaEyeSlash} from "react-icons/fa";
 import {loginUser} from "../services/api";
+import PasswordInputIcon from "../components/PasswordInputIcon";
+
 import "../css/auth.css"
 
 //Κρατάμε τις πληροφορίες του χρήστη
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   
   const navigate = useNavigate(); //μπορούμε να αλλάζουμε σελίδα
@@ -68,26 +68,14 @@ function Login() {
 
             <div className="auth-field">
               <label htmlFor="password">Password</label>
-                <div className="password-input-container">
-                  <input
-                    id="password"
-                    type={showPassword ? "text" : "password"}  
-                    required
-                    placeholder="Password NOWWWW"
-                    value={password}
-                    autoComplete="current-password"
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
 
-                  <button 
-                    type="button"  
-                    className="password-toggle"
-                    onClick={() => setShowPassword(!showPassword)}
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
-                    {showPassword ? <FaEye /> : <FaEyeSlash />}  {/* Αλλαζουμε το icon απο κλειστο σε ανοιχτο */}
-                  </button>
-                </div>
+                <PasswordInputIcon
+                  id="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder="Password"
+                  autoComplete="current-password"
+                />
             </div>
 
             <div className="auth-forgot-password">
