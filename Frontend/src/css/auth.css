@@ -14,7 +14,7 @@
 
     padding: 35px;
 
-    background-color: #929b41;
+    background-color: #1A2332;
     color: white;
 
     border-radius: 12px;
@@ -60,10 +60,10 @@
 .auth-field input {
     padding: 12px 14px;
 
-    border: 1px solid #444;
+    border: 1px solid #4f6363;
     border-radius: 6px;
 
-    background-color: #816c27;
+    background-color: #0F1622;
     color: white;
 
     font-size: 16px;

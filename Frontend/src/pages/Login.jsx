@@ -46,7 +46,7 @@ function Login() {
     <main className="auth-page">
         <div className="auth-card">
 
-          <h1>Welcome Pisw Bitchezzzzz</h1>
+          <h1>Welcome Back</h1>
           <p className="auth-subtitle"> Log in to continue discovering games.</p>
 
           {loginMessage && (<p className="auth-info">{loginMessage}</p>)}
@@ -59,7 +59,7 @@ function Login() {
                 id="email"
                 type="email"
                 required
-                placeholder="Enter your Email if you dare"
+                placeholder="Enter your Email"
                 value={email}
                 autoComplete="email"
                 onChange={(e) => setEmail(e.target.value)}
@@ -90,7 +90,7 @@ function Login() {
             <button type="submit"  className="auth-button">Login</button>
           </form>
 
-          <p className="auth-switch">You DO NOT have a naccount? STUPID  PENDEJO<Link to="/signup"> Sign down </Link></p>
+          <p className="auth-switch">You don't have a naccount?<Link to="/signup"> Sign up </Link></p>
         </div>  
     </main>
   );
