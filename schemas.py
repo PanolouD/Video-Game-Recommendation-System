@@ -116,10 +116,10 @@ class UserPreferenceBase(BaseModel):
 class RecommendationRequest(BaseModel):
     platforms: list[str]
     genres: list[str]
-    game_modes: list[str] = [] # ← Optional (default = empty list)
-    player_perspectives: list[str] = []
-    themes: list[str] = []
-    top_n: int = Field(default=10)
+    game_modes: list[str] = Field(default_factory=list)
+    player_perspectives: list[str] = Field(default_factory=list)
+    themes: list[str] = Field(default_factory=list)
+    top_n: int = Field(default=10, ge=1, le=10)
 
 class RecommendationResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
