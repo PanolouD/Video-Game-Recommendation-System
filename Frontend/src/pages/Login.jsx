@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import {loginUser} from "../services/api";
+import {loginUser, saveQuestionnaire} from "../services/api";
 import PasswordInputIcon from "../components/PasswordInputIcon";
 
 import "../css/auth.css"
@@ -27,6 +27,19 @@ function Login() {
 
 
       localStorage.setItem("accessToken", data.access_token); //Αποθηκευση του JWT access token  
+
+      const pendingQuestionnaire = sessionStorage.getItem("pendingQuestionnaire");
+
+      if(pendingQuestionnaire){
+        const answers = JSON.parse(pendingQuestionnaire);
+
+        await saveQuestionnaire(answers);
+
+        sessionStorage.removeItem("pendingQuestionnaire");
+
+        navigate("/recommendations");
+        return;
+      }
 
       // Redirect στο Questionnaire
       navigate("/questionnaire");

@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import {Link, useLocation, useNavigate} from "react-router-dom";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 
 import { addGameToLibrary, getLibraryGameStatus, removeGameFromLibrary,} from "../services/api";
 
 import "../css/LibraryButton.css";
 
 
-function LibraryButton({ gameId }) {
+function LibraryButton({ gameId, initialIsSaved = null, variant = "default", onSaveChange, }) {
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -14,8 +15,8 @@ function LibraryButton({ gameId }) {
     const token = localStorage.getItem("accessToken");
     const isLoggedIn = Boolean(token);
 
-    const [isSaved, setIsSaved] = useState(false);
-    const [loading, setLoading] = useState(true);
+    const [isSaved, setIsSaved] = useState(initialIsSaved === true);
+    const [loading, setLoading] = useState(initialIsSaved === null);
     const [error, setError] = useState("");
 
 
@@ -23,8 +24,15 @@ function LibraryButton({ gameId }) {
         let cancelled = false;
 
         async function loadLibraryStatus() {
-            if (!gameId || isLoggedIn) {
+            if (!gameId || !isLoggedIn) {
                 setIsSaved(false);
+                setLoading(false);
+                setError("");
+                return;
+            }
+            // Στην Libraryξερουμε οτι το παιχνιδι ειναι αποθηκευμενο και δεν χρειαζεται επιπλεον request για το status του.
+            if(typeof initialIsSaved === "boolean"){
+                setIsSaved(initialIsSaved);
                 setLoading(false);
                 setError("");
                 return;
@@ -39,17 +47,12 @@ function LibraryButton({ gameId }) {
                 if (!cancelled) {
                     setIsSaved(data.is_saved);
                 }
-            } catch (error) {
+            } catch (requestError) {
                 if (!cancelled) {
-                    setError(
-                        error.message ||
-                        "Could not check library status."
-                    );
-                }
+                    setError( requestError.message || "Could not check library status.");}
             } finally {
-                if (!cancelled) {
-                    setLoading(false);
-                }
+                if (!cancelled) 
+                    {setLoading(false);}
             }
         }
 
@@ -58,7 +61,7 @@ function LibraryButton({ gameId }) {
         return () => {
             cancelled = true;
         };
-    }, [gameId, isLoggedIn]);
+    }, [gameId, isLoggedIn, initialIsSaved]);
 
 
     async function handleLibraryClick() {
@@ -83,59 +86,84 @@ function LibraryButton({ gameId }) {
 
             if (isSaved) {
                 await removeGameFromLibrary(gameId);
+
                 setIsSaved(false);
+                onSaveChange?.(false);
             } else {
                 await addGameToLibrary(gameId);
+
                 setIsSaved(true);
+                onSaveChange?.(true);
             }
-        } catch (error) {
-            /*
-             * Αν το frontend είχε παλιά κατάσταση και το παιχνίδι
-             * υπάρχει ήδη, συγχρονίζουμε το κουμπί με το backend.
-             */
-            if (error.status === 409) {
+        } catch (requestError) {
+
+            if (requestError.status === 409) {
                 setIsSaved(true);
+                onSaveChange?.(true);
                 return;
             }
 
-            /*
-             * Αν επιχειρήσουμε αφαίρεση αλλά το παιχνίδι
-             * έχει ήδη διαγραφεί, το θεωρούμε μη αποθηκευμένο.
-             */
-            if (error.status === 404 && isSaved) {
+            if (requestError.status === 404 && isSaved && isSaved) {
                 setIsSaved(false);
+                onSaveChange?.(false);
                 return;
             }
 
-            setError(
-                error.message ||
-                "Could not update your library."
-            );
+            if(requestError.status === 401) {
+                localStorage.removeItem("accessToken");
+
+                navigate("/login", {
+                    state: {
+                        from: location.pathname,
+                        message: "Your session has expired. Log in again."
+                    },
+                });
+                return;
+            }
+
+            setError(requestError.message || "Could not update your library.");
         } finally {
             setLoading(false);
         }
     }
 
+    const isHeartVariant = variant === "heart";
 
     return (
-        <div className="library-button-container">
+        <div className={isHeartVariant ? "library-button-container heart-container" : "library-button-container"}>
             <button
                 type="button"
-                className={
-                    isSaved
-                        ? "library-button saved"
-                        : "library-button"
-                }
+                className={[ "library-button", isSaved ? "saved" : "",
+                    isHeartVariant
+                        ? "library-heart-button"
+                        : "",
+                ].filter(Boolean).join(" ")}        
+            
                 onClick={handleLibraryClick}
                 disabled={(isLoggedIn && loading) || !gameId}
-            >
-                {isLoggedIn
-                    ? "Add to Library"
-                    : loading
-                        ? "Checking..."
-                        : isSaved
-                            ? "✓ In Library"
-                            : "+ Add to Library"}
+
+                aria-label={
+                    isSaved ? "Remove from Library" : "Add to Library"
+                }
+
+                title={
+                    isSaved ? "Remove from Library" : "Add to Library"
+                }
+            >    
+
+                {isHeartVariant ? (isSaved ? (
+                        <FaHeart aria-hidden="true" />
+                    ) : (
+                        <FaRegHeart aria-hidden="true" />
+                    )
+                ) : loading ? (
+                    "Checking..."
+                ) : isSaved ? (
+                    "✓ In Library"
+                ) : (
+                    "+ Add to Library"
+                )}
+                
             </button>
 
             {error && (

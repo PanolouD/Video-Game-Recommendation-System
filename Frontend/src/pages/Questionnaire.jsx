@@ -217,6 +217,9 @@ function Questionnaire() {
         const token = localStorage.getItem("accessToken");
 
         if (!token) { // Ετσι το frontend δεν επιχειρει καν να αποθηκευσει χωρις token
+            
+            sessionStorage.setItem("pendingQuestionnaire", JSON.stringify(answers));
+            
             navigate("/login", {
                 state: {
                     from: "/questionnaire",

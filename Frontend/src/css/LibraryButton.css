@@ -58,3 +58,75 @@
     color: #ff7777;
     font-size: 12px;
 }
+
+.heart-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+
+    margin: 0;
+}
+
+
+.library-heart-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 42px;
+    height: 42px;
+    padding: 0;
+
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 50%;
+
+    background-color: rgba(24, 24, 24, 0.92);
+    color: #bdbdbd;
+
+    font-size: 19px;
+
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+
+    transition:
+        color 0.2s ease,
+        border-color 0.2s ease,
+        background-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+/* Το παιχνίδι βρίσκεται στη Library */
+.library-heart-button.saved {
+    border-color: #8ee58b;
+
+    background-color: rgba(31, 58, 35, 0.95);
+    color: #9ee493;
+}
+
+/* Hover όταν το παιχνίδι δεν έχει αποθηκευτεί */
+.library-heart-button:not(.saved):hover:not(:disabled) {
+    border-color: #9ee493;
+
+    background-color: rgba(47, 78, 51, 0.95);
+    color: #9ee493;
+
+    transform: scale(1.06);
+}
+
+/* Hover όταν το παιχνίδι είναι ήδη αποθηκευμένο */
+.library-heart-button.saved:hover:not(:disabled) {
+    border-color: #d6c878;
+
+    background-color: rgba(68, 61, 30, 0.96);
+    color: #eee09a;
+
+    transform: scale(1.06);
+}
+
+.library-heart-button:focus-visible {
+    outline: 2px solid #9ee493;
+    outline-offset: 3px;
+}
+
+.library-heart-button svg {
+    pointer-events: none;
+}

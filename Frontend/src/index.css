@@ -26,7 +26,15 @@ html {
 }
 
 body {
-    margin: 0;
+
+    background-image:
+        linear-gradient(
+            rgba(10, 12, 14, 0.84),
+            rgba(10, 12, 14, 0.92)
+        ),
+        url("./assets/panathinaikos.jpg");
+
+    /*margin: 0;
 
     background:
         radial-gradient(
@@ -47,6 +55,7 @@ body {
         Inter,
         Arial,
         sans-serif;
+        */
 }
 
 button,

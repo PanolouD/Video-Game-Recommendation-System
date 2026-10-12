@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import VideoGameCard from "../components/VideoGameCard";
+import LibraryButton from "../components/LibraryButton";
 import { getLibrary } from "../services/api";
 
 import "../css/Library.css"
@@ -56,6 +57,13 @@ function Library() {
       };
     }, [navigate]);
 
+    //αφαιρει απο την οθονη το παιχνιδι
+    function handleGameRemoved(gameId) {
+        setLibraryEntries((currentEntries) => 
+            currentEntries.filter((entry) => entry.game.id !== gameId)
+        );
+    }
+
     if (loading) {
         return (
             <main className="library-page">
@@ -97,8 +105,21 @@ function Library() {
                 <section className="library-grid">
                     {libraryEntries.map((entry) => (
                         <div className="library-item" key={entry.id}>
-                            <VideoGameCard game={entry.game} />
+                            <div className="library-card-wrapper">
+                                <VideoGameCard game={entry.game} />
 
+                                <LibraryButton
+                                    gameId={entry.game.id}
+                                    initialIsSaved={true}
+                                    variant="heart"
+                                    onSaveChange={(isSaved) => {
+                                        if(!isSaved) {
+                                            handleGameRemoved(entry.game.id);
+                                        };
+                                    }}
+                                />
+
+                            </div>
                             <p className="library-saved-date">
                                 Saved{" "} 
                                 {new Date(entry.saved_at).toLocaleDateString()}

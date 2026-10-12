@@ -99,3 +99,7 @@
     font-size: 13px;
     text-align: center;
 }
+
+.library-card-wrapper {
+    position: relative;
+}
