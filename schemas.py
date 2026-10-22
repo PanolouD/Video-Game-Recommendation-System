@@ -116,7 +116,7 @@ class UserPreferenceBase(BaseModel):
 class RecommendationRequest(BaseModel):
     platforms: list[str]
     genres: list[str]
-    game_modes: list[str] = Field(default_factory=list)
+    game_modes: list[str] = Field(default_factory=list) # Εδώ λες στην Pydantic να δημιουργεί μια νέα κενή λίστα κάθε φορά που φτιάχνει ένα αντικείμενο και δεν έχει δοθεί τιμή γι’ αυτό το πεδίο.
     player_perspectives: list[str] = Field(default_factory=list)
     themes: list[str] = Field(default_factory=list)
     top_n: int = Field(default=10, ge=1, le=10)
