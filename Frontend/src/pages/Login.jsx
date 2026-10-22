@@ -103,7 +103,7 @@ function Login() {
             <button type="submit"  className="auth-button">Login</button>
           </form>
 
-          <p className="auth-switch">You don't have a naccount?<Link to="/signup"> Sign up </Link></p>
+          <p className="auth-switch">You don't have an account;<Link to="/signup"> Sign up </Link></p>
         </div>  
     </main>
   );

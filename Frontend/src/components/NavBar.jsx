@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import gamepadLogo from "../assets/logo-photos/game_over01.jpg";
+import gamepadLogo from "../assets/logo-photos/game-on.jpg";
 import {getApiAssetUrl, getCurrentUser} from "../services/api";
 
 import "../css/NavBar.css";

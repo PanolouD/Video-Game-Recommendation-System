@@ -1,6 +1,6 @@
 import {Link} from "react-router-dom";
 
-import gamepadLogo from "../assets/logo-photos/game_over01.jpg";
+import gamepadLogo from "../assets/logo-photos/game-on.jpg";
 
 import "../css/Footer.css";
 
