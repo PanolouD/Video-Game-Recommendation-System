@@ -2,3 +2,232 @@
 Thesis: Video Games Recommendation System
 
 #p0stgr3
+
+
+# Video Game Recommendation System
+
+A full-stack web application that recommends video games based on a user's preferences. Users complete a questionnaire about genres, themes, platforms, game modes, and player perspectives. The backend ranks the available games and returns personalized recommendations.
+
+The application also supports user registration and authentication, password reset by email, profile management, game details, and a personal game library.
+
+## Main Features
+
+- User registration, login, and JWT-based authentication
+- Password reset through email
+- User profile and profile-picture management
+- Preference questionnaire with multiple selections
+- Personalized game recommendations
+- Recommendation ranking using rule-based scoring, TF-IDF, and cosine similarity
+- Detailed game information, including covers, screenshots, trailers, storyline, developers, publishers, release date, age ratings, and similar games
+- Personal library for saving and removing games
+- Popular games on the home page
+- Game data retrieved from the IGDB API and stored locally in PostgreSQL
+
+## Technologies
+
+### Frontend
+
+- React
+- React Router
+- React Icons
+- CSS
+
+### Backend
+
+- FastAPI
+- SQLAlchemy (asynchronous sessions)
+- Alembic
+- PostgreSQL
+- Pydantic
+- JWT authentication
+- scikit-learn, pandas, and NumPy
+- IGDB API
+- SMTP email service
+
+## Project Structure
+
+```text
+FinalProject/
+├── alembic/                 # Database migrations
+├── Frontend/                # React application
+│   ├── public/
+│   ├── src/
+│   ├── package.json
+│   └── package-lock.json
+├── media/                   # Uploaded profile pictures
+├── routers/                 # FastAPI API routes
+├── static/                  # Static files and default profile picture
+├── templates/               # Email templates
+├── auth.py                  # Authentication and token functions
+├── config.py                # Environment-based configuration
+├── database.py              # Database connection and sessions
+├── igdb_client.py           # IGDB API client
+├── main.py                  # FastAPI application entry point
+├── models.py                # SQLAlchemy models
+├── recommender.py           # Recommendation algorithm
+├── requirements.txt         # Python dependencies
+├── schemas.py               # Pydantic schemas
+└── seed_games.py            # Initial game-data import
+```
+
+## Prerequisites
+
+Install the following software before running the application:
+
+- Python 3.11 or newer
+- Node.js and npm
+- PostgreSQL
+- Git (optional)
+
+You will also need:
+
+- IGDB API credentials (Twitch Client ID and Client Secret)
+- SMTP credentials if you want to test password-reset emails
+
+## Environment Configuration
+
+Create a `.env` file in the root directory, next to `config.py`.
+
+You may copy `.env.example` and replace its placeholder values:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Required configuration:
+
+```env
+DATABASE_URL=postgresql+psycopg://postgres:YOUR_PASSWORD@localhost:5432/video_game_recommendations
+
+SECRET_KEY=replace_with_a_long_random_secret
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+RESET_TOKEN_EXPIRE_MINUTES=60
+MAX_UPLOAD_SIZE_BYTES=5242880
+
+IGDB_CLIENT_ID=your_igdb_client_id
+IGDB_CLIENT_SECRET=your_igdb_client_secret
+
+MAIL_SERVER=sandbox.smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=your_mail_username
+MAIL_PASSWORD=your_mail_password
+MAIL_FROM=noreply@example.com
+MAIL_USE_TLS=true
+
+FRONTEND_URL=http://localhost:3000
+```
+
+Do not commit or share the real `.env` file because it contains private credentials.
+
+## Database Setup
+
+Create an empty PostgreSQL database. For example:
+
+```sql
+CREATE DATABASE video_game_recommendations;
+```
+
+Update `DATABASE_URL` in `.env` so that it contains the correct PostgreSQL username, password, host, port, and database name.
+
+## Backend Installation
+
+Open PowerShell in the project root directory:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+alembic upgrade head
+python seed_games.py
+python -m uvicorn main:app --reload
+```
+
+The backend will be available at:
+
+```text
+http://localhost:8000
+```
+
+Interactive API documentation is available at:
+
+```text
+http://localhost:8000/docs
+```
+
+### About `seed_games.py`
+
+Run `python seed_games.py` during the initial setup to retrieve game data from IGDB and populate the PostgreSQL database. Valid IGDB credentials and an internet connection are required.
+
+The seeding command is not required every time the backend starts. Run it again only when the game catalog needs to be populated or refreshed.
+
+## Frontend Installation
+
+Keep the backend running and open a second PowerShell window:
+
+```powershell
+cd Frontend
+npm ci
+npm start
+```
+
+The frontend will open at:
+
+```text
+http://localhost:3000
+```
+
+`npm ci` uses the exact dependency versions recorded in `package-lock.json`.
+
+## Starting the Application After the First Installation
+
+The database migrations, package installations, and initial seeding do not need to be repeated on every launch.
+
+Start the backend from the project root:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+python -m uvicorn main:app --reload
+```
+
+Then start the frontend in a second terminal:
+
+```powershell
+cd Frontend
+npm start
+```
+
+## Recommendation Process
+
+1. The user selects preferred genres, themes, platforms, game modes, and player perspectives.
+2. The backend filters the locally stored games using the selected categories.
+3. A weighted rule-based score is calculated for each candidate game.
+4. TF-IDF and cosine similarity are used to measure content similarity.
+5. The final score combines 85% rule-based matching and 15% content similarity.
+6. The highest-ranked games are returned to the recommendations page.
+
+Recommendations are generated from the games stored in PostgreSQL. The application does not send a new IGDB request whenever a questionnaire is submitted.
+
+## Useful URLs
+
+| Service | URL |
+| --- | --- |
+| React frontend | `http://localhost:3000` |
+| FastAPI backend | `http://localhost:8000` |
+| Swagger API documentation | `http://localhost:8000/docs` |
+| ReDoc documentation | `http://localhost:8000/redoc` |
+
+## Notes and Limitations
+
+- The initial catalog contains up to 500 games retrieved from IGDB.
+- Recommendations are limited to games already stored in the local database.
+- Strict preference combinations may produce few or no matching games.
+- SMTP settings are required only for actual password-reset email delivery.
+- Uploaded profile pictures are stored locally in the `media` directory.
+
+## Authors
+
+Developed as a thesis project for a video game recommendation system.
+
+STATHOUSIS PANAGIOTHS | MASTRAPAS NIKOLAOS, τμήμα πληροφορικής και τηλεπικοινωνιών, institution, and academic year here before submission.
