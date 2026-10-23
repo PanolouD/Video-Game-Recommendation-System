@@ -3,9 +3,11 @@ Thesis: Video Games Recommendation System
 
 # Video Game Recommendation System
 
-A full-stack web application that recommends video games based on a user's preferences. Users complete a questionnaire about genres, themes, platforms, game modes, and player perspectives. The backend ranks the available games and returns personalized recommendations.
+A full-stack web application that recommends video games based on a user's preferences. Users complete a questionnaire about genres, themes, platforms, game modes, and player perspectives. The backend filters and ranks the available games and returns personalized recommendations.
 
 The application also supports user registration and authentication, password reset by email, profile management, game details, and a personal game library.
+
+Developed as an undergraduate thesis project.
 
 ## Main Features
 
@@ -13,9 +15,9 @@ The application also supports user registration and authentication, password res
 - Password reset through email
 - User profile and profile-picture management
 - Preference questionnaire with multiple selections
-- Personalized game recommendations
+- Personalized game recommendations with up to 10 ranked results
 - Recommendation ranking using rule-based scoring, TF-IDF, and cosine similarity
-- Detailed game information, including covers, screenshots, trailers, storyline, developers, publishers, release date, age ratings, and similar games
+- Detailed game information, including available covers, screenshots, trailers, storyline, developers, publishers, release date, age ratings, and similar games
 - Personal library for saving and removing games
 - Popular games on the home page
 - Game data retrieved from the IGDB API and stored locally in PostgreSQL
@@ -37,37 +39,54 @@ The application also supports user registration and authentication, password res
 - Alembic
 - PostgreSQL
 - Pydantic
-- JWT authentication
-- scikit-learn
+- PyJWT and pwdlib for authentication
+- scikit-learn for TF-IDF and cosine similarity
+- Pillow for profile-image processing
 - IGDB API
 - SMTP email service
-- Pillow for profile-image processing
 
 ## Project Structure
 
+The following structure highlights the main application files:
+
 ```text
-FinalProject/
+project-root/
 ├── alembic/                 # Database migrations
+├── alembic.ini              # Alembic configuration
 ├── Frontend/                # React application
 │   ├── public/
+│   │   └── index.html
 │   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── css/
+│   │   └── services/
+│   │       └── api.js
 │   ├── package.json
 │   └── package-lock.json
-├── media/                   # Uploaded profile pictures
+├── media/
+│   └── profile_pics/        # Uploaded profile pictures; not committed
 ├── routers/                 # FastAPI API routes
-├── static/                  # Static files and default profile picture
-├── templates/               # Email templates
+├── static/
+│   └── profile_pics/
+│       └── default.jpg      # Default profile picture
 ├── auth.py                  # Authentication and token functions
 ├── config.py                # Environment-based configuration
 ├── database.py              # Database connection and sessions
+├── email_utils.py           # Password-reset email delivery
+├── image_utils.py           # Profile-image processing
 ├── igdb_client.py           # IGDB API client
 ├── main.py                  # FastAPI application entry point
 ├── models.py                # SQLAlchemy models
 ├── recommender.py           # Recommendation algorithm
 ├── requirements.txt         # Python dependencies
 ├── schemas.py               # Pydantic schemas
-└── seed_games.py            # Initial game-data import
+├── seed_games.py            # Initial game-data import
+├── .env.example             # Configuration template without real credentials
+├── .gitignore
+└── README.md
 ```
+
 Uploaded user pictures should not be committed to the repository. The default profile picture at `static/profile_pics/default.jpg` is an application asset and must be retained.
 
 ## Prerequisites
@@ -79,55 +98,57 @@ Install the following software before running the application:
 - PostgreSQL
 - Git, if you want to clone the repository
 
-The backend uses `datetime.UTC`, which requires Python 3.11 or newer. Compatibility with the full dependency list must also be checked.
+The backend uses `datetime.UTC`, which requires Python 3.11 or newer. Compatibility with the complete dependency list must also be checked.
 
 You will also need:
 
-- IGDB API credentials (Twitch Client ID and Client Secret)
-- SMTP credentials if you want to test password-reset emails
+- IGDB API credentials: Twitch Client ID and Client Secret
+- SMTP credentials if you want to test password-reset email delivery
 
-The installation commands below use Windows PowerShell.
+The commands below use Windows PowerShell.
+
+Download or clone the repository, then open PowerShell in the project root: the directory containing `main.py`, `config.py`, and `Frontend/`.
 
 ## Environment Configuration
 
-Create a `.env` file in the root directory, next to `config.py`.
-
-You may copy `.env.example` and replace its placeholder values:
+Create your local `.env` file by copying the supplied example:
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
+The `.env` file must be in the project root, next to `config.py`.
+
 Example configuration:
 
 ```dotenv
-DATABASE_URL=postgresql+psycopg://thesis_user:YOUR_PASSWORD@localhost:5432/video_game_recommendations
+DATABASE_URL=postgresql+psycopg://thesis_user:CHANGE_ME@localhost:5432/video_game_recommendations
 
-SECRET_KEY=replace_with_a_long_random_secret
+SECRET_KEY=REPLACE_WITH_A_LONG_RANDOM_SECRET
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 RESET_TOKEN_EXPIRE_MINUTES=60
+
 MAX_UPLOAD_SIZE_BYTES=5242880
 
-IGDB_CLIENT_ID=your_igdb_client_id
-IGDB_CLIENT_SECRET=your_igdb_client_secret
+FRONTEND_URL=http://localhost:3000
+
+IGDB_CLIENT_ID=REPLACE_WITH_YOUR_TWITCH_CLIENT_ID
+IGDB_CLIENT_SECRET=REPLACE_WITH_YOUR_TWITCH_CLIENT_SECRET
 
 MAIL_SERVER=smtp.example.com
 MAIL_PORT=587
-MAIL_USERNAME=your_mail_username
-MAIL_PASSWORD=your_mail_password
+MAIL_USERNAME=REPLACE_WITH_YOUR_SMTP_USERNAME
+MAIL_PASSWORD=REPLACE_WITH_YOUR_SMTP_PASSWORD
 MAIL_FROM=noreply@example.com
 MAIL_USE_TLS=true
-
-FRONTEND_URL=http://localhost:3000
 ```
-Do not commit or share the real `.env` file because it contains private credentials.
 
-Replace the database and IGDB values with your own credentials.
+Replace the database and IGDB placeholders with your own configuration.
 
 SMTP settings must match your email provider. The example SMTP values will not deliver password-reset emails.
 
-You can generate a random JWT secret locally:
+After creating the Python environment described below, you can generate a random JWT secret with:
 
 ```powershell
 python -c "import secrets; print(secrets.token_hex(32))"
@@ -135,11 +156,13 @@ python -c "import secrets; print(secrets.token_hex(32))"
 
 Copy the generated value into `SECRET_KEY`.
 
+Never commit the real `.env` file, database passwords, SMTP credentials, or IGDB/Twitch secrets. Only the placeholder `.env.example` should be included in the repository.
+
 ### Frontend API Configuration
 
-The frontend defaults to `http://localhost:8000`.
+The frontend defaults to the backend at `http://localhost:8000`.
 
-To use another backend address, create `Frontend/.env`:
+To configure another backend address, create `Frontend/.env`:
 
 ```dotenv
 REACT_APP_API_URL=http://localhost:8000
@@ -151,7 +174,11 @@ If the frontend address changes, also check the backend's allowed CORS origins. 
 
 ## Database Setup
 
-Create a PostgreSQL login role for the application and an empty database owned by that role.
+Using pgAdmin or PostgreSQL tools:
+
+1. Create a PostgreSQL login role for the application.
+2. Create an empty database owned by that role.
+3. Update `DATABASE_URL` in `.env` with the matching credentials and database name.
 
 For example, when connected as a PostgreSQL user with the required permissions:
 
@@ -161,22 +188,20 @@ CREATE DATABASE video_game_recommendations OWNER thesis_user;
 
 The role `thesis_user` must already exist before running this command.
 
-Update `DATABASE_URL` in `.env` so that it contains the correct PostgreSQL username, password, host, port, and database name.
-
-Make sure PostgreSQL is running before continuing.
+Make sure PostgreSQL is running before applying migrations or starting the application.
 
 ## Backend Installation
 
 Open PowerShell in the project root directory.
 
-### 1. Create and activate a virtual environment
+### 1. Create and Activate a Virtual Environment
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 ```
 
-### 2. Install dependencies
+### 2. Install Dependencies
 
 ```powershell
 python -m pip install -r requirements.txt
@@ -191,7 +216,7 @@ Get-Content requirements.txt -Encoding Unicode |
 python -m pip install -r requirements-utf8.txt
 ```
 
-### 3. Prepare profile-picture directories
+### 3. Prepare Profile-Picture Directories
 
 ```powershell
 New-Item -ItemType Directory -Force .\static\profile_pics
@@ -204,13 +229,25 @@ Ensure the default image exists at:
 static/profile_pics/default.jpg
 ```
 
-Creating the directory does not create the image itself.
+Creating the directory does not create the image itself. The default image must be included in the repository.
 
-### 4. Apply migrations, import games, and start the backend
+### 4. Apply Database Migrations
 
 ```powershell
 python -m alembic upgrade head
+```
+
+### 5. Import Game Data
+
+```powershell
 python seed_games.py
+```
+
+This step requires internet access and valid IGDB/Twitch credentials.
+
+### 6. Start the Backend
+
+```powershell
 python -m uvicorn main:app --reload --port 8000
 ```
 
@@ -226,13 +263,15 @@ Interactive API documentation is available at:
 http://localhost:8000/docs
 ```
 
+Keep this terminal running.
+
 ### About `seed_games.py`
 
-Run `python seed_games.py` during the initial setup to retrieve game data from IGDB and populate the PostgreSQL database. Valid IGDB credentials and an internet connection are required.
+Run `python seed_games.py` during initial setup to retrieve game data from IGDB and populate the PostgreSQL database.
 
-The seeding command is not required every time the backend starts. Run it during initial setup to populate the catalog.
+The import script requests up to 500 games. The actual number stored depends on the API response, existing records, and the import outcome.
 
-Re-running the script should not be treated as a full synchronization of existing game data.
+The seeding command is not required every time the backend starts. Re-running the script should not be treated as a full synchronization of existing game data.
 
 ## Frontend Installation
 
@@ -244,7 +283,7 @@ npm ci
 npm start
 ```
 
-The frontend will open at:
+Open the application at:
 
 ```text
 http://localhost:3000
@@ -283,9 +322,36 @@ PostgreSQL must be running while the application is in use.
 5. The final score combines 85% rule-based matching and 15% content similarity.
 6. The highest-ranked games are returned to the recommendations page.
 
-Selections within the same category use OR logic, while different non-empty categories use AND logic. A game must satisfy every selected category to remain a candidate.
+Selections within the same category use OR logic, while different non-empty categories use AND logic. A game must satisfy every non-empty preference category to remain a candidate.
+
+The rule-based component uses the following category weights:
+
+| Category | Weight |
+| --- | --- |
+| Genres | 0.30 |
+| Platforms | 0.25 |
+| Game modes | 0.20 |
+| Player perspectives | 0.15 |
+| Themes | 0.10 |
+
+The final score is calculated as:
+
+```text
+Final score = 0.85 × rule-based score + 0.15 × cosine similarity
+```
 
 Recommendations are generated from the games stored in PostgreSQL. The application does not send a new IGDB request whenever a questionnaire is submitted.
+
+## Using the Application
+
+1. Create an account and sign in.
+2. Complete the preference questionnaire.
+3. Submit your preferences to generate recommendations.
+4. Browse the recommended games and their available details.
+5. Save games to your personal library.
+6. Manage your saved games and profile settings.
+
+If no recommendations are returned, try a different combination of preferences. Strict filtering can exclude every game in the current catalog.
 
 ## Useful URLs
 
@@ -296,9 +362,65 @@ Recommendations are generated from the games stored in PostgreSQL. The applicati
 | Swagger API documentation | http://localhost:8000/docs |
 | ReDoc documentation | http://localhost:8000/redoc |
 
+## Manual Verification
+
+After installation, verify that:
+
+- The home page loads the game catalog.
+- Registration, login, and logout work.
+- Questionnaire preferences can be saved.
+- Recommendations appear, or an appropriate empty-result message is displayed.
+- Games can be saved to and removed from the personal library.
+- Profile updates and profile-picture operations work.
+- Users without an uploaded picture see the default profile image.
+- Password-reset emails are delivered when valid SMTP settings are configured.
+
+This checklist describes manual verification steps, not automated test coverage.
+
+## Troubleshooting
+
+### The Game Catalog Is Empty
+
+Check that:
+
+- PostgreSQL is running.
+- `DATABASE_URL` points to the correct database.
+- Database migrations completed successfully.
+- IGDB credentials are valid.
+- `python seed_games.py` completed successfully.
+- `GET /api/games/` returns game records.
+
+### Recommendations Are Empty
+
+Confirm that games have been imported and try a different or less restrictive combination of preferences.
+
+### The Frontend Cannot Reach the Backend
+
+Check that:
+
+- The backend is running on port 8000.
+- `REACT_APP_API_URL` points to the correct backend.
+- The frontend origin is allowed by the backend's CORS configuration.
+
+### Personal Endpoints Return 401
+
+The access token may be missing or expired. Sign in again.
+
+### The Default Profile Picture Is Missing
+
+Verify that the following file exists:
+
+```text
+static/profile_pics/default.jpg
+```
+
+### Password-Reset Emails Are Not Delivered
+
+Check the SMTP host, port, username, password, sender address, and TLS configuration.
+
 ## Notes and Limitations
 
-- The import script requests up to 500 games from IGDB. The actual number stored depends on the API response and the import outcome.
+- The import script requests up to 500 games from IGDB. The actual number stored depends on the import outcome.
 - Recommendations are limited to games already stored in the local database.
 - Strict preference combinations may produce few or no matching games.
 - Missing or inconsistent game metadata can affect matching.
@@ -306,8 +428,10 @@ Recommendations are generated from the games stored in PostgreSQL. The applicati
 - Scoring weights are fixed and have not been optimized through a formal evaluation.
 - Recommendation quality and user satisfaction have not been quantitatively evaluated.
 - The current algorithm does not use collaborative filtering or other users' behavior.
+- Saved library entries do not influence the current recommendation score.
 - SMTP settings are required for actual password-reset email delivery.
 - Uploaded profile pictures are stored locally in the `media` directory.
+- Access tokens are stored in browser localStorage in the current implementation.
 - Dependency audit findings require review before production deployment.
 
 This is an academic portfolio project. The local development setup is not a production deployment configuration.
