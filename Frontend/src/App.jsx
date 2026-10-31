@@ -8,9 +8,8 @@ import Library from "./pages/Library";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
-import Footer from "./components/Footer";
-
 import NavBar from "./components/NavBar";
+import Footer from "./components/Footer";
 
 
 

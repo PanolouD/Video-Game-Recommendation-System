@@ -11,13 +11,13 @@ export function getApiAssetUrl(path) {
     return `${API_BASE_URL}${path}`;
 }
 
-export async function apiRequest(path, options = {}){ //path ειναι το endpoint που θελουμε να καλεσουμε ανα στιγμη | options ειναι ενα object με τις ρυθμισεις του request
+export async function apiRequest(path, options = {}){ //path ειναι το endpoint που θελουμε να καλεσουμε ανα στιγμη | options ειναι ενα object με τις ρυθμισεις του request (method, body, headers)
    
     //Παιρνουμε το JWT απο το localStorage
     const token = localStorage.getItem("accessToken");
    
     const response = await fetch(`${API_BASE_URL}${path}`, { 
-        ...options, // Αντιγραφει ολες τις ρυθμισεις του request, οπως method, body και headers
+        ...options, // Αντιγραφει ολες τις ρυθμισεις του request, οπως method, body και headers στο fetch
 
         headers:{
             ...options.headers,

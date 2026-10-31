@@ -16,8 +16,7 @@ function Recommendations() {
     const [recommendations, setRecommendations] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
-    const [needsQuestionnaire, setNeedsQuestionnaire] =
-    useState(false);
+    const [needsQuestionnaire, setNeedsQuestionnaire] = useState(false);
 
     const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -36,10 +35,7 @@ function Recommendations() {
           setCurrentIndex(0);
 
         } catch (requestError) {
-          console.error(
-            "Could not load recommendations:",
-            requestError
-          );
+          console.error("Could not load recommendations:", requestError);
 
           if (requestError.status === 401) {
             localStorage.removeItem("accessToken");

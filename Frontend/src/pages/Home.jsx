@@ -11,7 +11,7 @@ function Home() {
   
 
   const [games, setGames] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
+ // const [searchQuery, setSearchQuery] = useState(""); // Το αφηνω σε περιπτωση που θελουμε να βαλουμε searchbar για τα αρχικα παιχνιδια
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -130,7 +130,7 @@ function Home() {
       <section className="popular-games"> 
 
             <h2>
-                {searchQuery.trim() ? "Search Results" : "Popular Games"}
+                Popular Games
             </h2>
 
             {loading && (

@@ -152,7 +152,7 @@ function Questionnaire() {
     const [searchTerm, setSearchTerm] = useState(""); // Έλεγχος για το αν κρατα το κειμενο αναζητησης
     const [finishAttempted, setFinishAttempted] = useState(false); // Γίνεται true ΜΟΝΟ οταν πατησει finish ο χρηστης
     //States για loading και API error
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false); // Περιμενουμε την αποθηκευση στο backend
     const [submissionError, setSubmissionError] = useState(""); // Εμφανίζει λάθος οταν οι απαντησεις ειναι συμπληρωμένες, αλλα απέτυχε το request προς το backend
 
     const question = questions[currentQuestion];
@@ -164,7 +164,7 @@ function Questionnaire() {
     );
 
     const filteredOptions = question.options
-        ? question.options.filter((option) =>
+            ? question.options.filter((option) =>
             option.toLowerCase().includes(searchTerm.toLowerCase())
         ) 
         : [];
@@ -185,7 +185,7 @@ function Questionnaire() {
        }
 
        setAnswers({
-        ...answers,
+        ...answers, //διατηρει τις υπολοιπες κατηγοριες
         [question.id]: updatedAnswers
        });
 
