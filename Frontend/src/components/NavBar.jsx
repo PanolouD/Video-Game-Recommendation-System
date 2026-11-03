@@ -11,9 +11,9 @@ function NavBar(){
     const navigate = useNavigate();
     const location = useLocation();
 
-    const isLoggedIn = !!localStorage.getItem("accessToken");
+    const {currentUser, authLoading, logout,} = useAuth();
 
-    const [currentUser, setCurrentUser] = useState(null);
+    const isLoggedIn = Boolean(currentUser);
 
         useEffect(() => {
         let canceled = false;
@@ -43,7 +43,7 @@ function NavBar(){
             loadCurrentUser();
         }
 
-        window.addEventListener("profileUPdated", handleProfileUpdated);
+        window.addEventListener("profileUpdated", handleProfileUpdated);
 
         return () => {
             canceled = true;
@@ -52,10 +52,13 @@ function NavBar(){
         };
     }, [isLoggedIn, location.pathname]);
 
-    function handleLogout(){
-        localStorage.removeItem("accessToken");
-        setCurrentUser(null);
+    async function handleLogout(){
+        await logout();
         navigate("/");
+    }
+
+    if(authLoading) {
+        return null;
     }
 
     const profileImageUrl = getApiAssetUrl(currentUser?.image_path || "/static/profile_pics/default.jpg"); // Το backend επιστρεφει το default path οταν ο χρηστης δεν εχει βαλει δικη του φωτογραφία

@@ -1,6 +1,6 @@
 from datetime import UTC, datetime, timedelta
 import jwt
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import APIKeyCookie
 from pwdlib import PasswordHash
 from config import settings
 from typing import Annotated
@@ -14,9 +14,15 @@ import secrets #Με αυτο η Python κανει generate ασφαλης τυ�
 
 password_hash = PasswordHash.recommended() #Εδω δημιουργειται ενας password hasher χρησιμοποιωντας την Argon2 που κατεβασαμε με το pwdlib με τα recommended settings του.
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/users/token") #Αυτο το tokenUrl πρεπει να ταιριαζει με το login endpoint path το οποιο ειναι το api/users/token. 
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/users/token") #Αυτο το tokenUrl πρεπει να ταιριαζει με το login endpoint path το οποιο ειναι το api/users/token. 
 #Ο OAuth2PasswordBearer παιρνει το token απο το authorization header. Οποτε οταν ενας client το στελνει αυτο, το schema αυτο παιρνει αυτο το token για εμας
 #και επισης ενεργοποιει το authorization button στα docs της FastAPI που κανει τα τεστ για το authentication πιο ευκολα.   
+
+cookie_scheme = APIKeyCookie(
+    name=settings.cookie_name,
+    auto_error=False,   # αν λειπει το cookie το FastAPI δεν θα δημιουργησει αυτοματα error. Θα το διαχειριστουμε με 401 μεσα στη get_current_user
+    
+)
 
 #Αυτο που γινεται στην συναρτηση αυτη ειναι οτι παιρνει ενα plain text password και επιστρέφει το hash.
 def hash_password(password: str) -> str:
@@ -69,15 +75,21 @@ def verify_access_token(token: str) -> str | None:
 
 ## get_current_user
 async def get_current_user(
-    token: Annotated[str, Depends(oauth2_scheme)],
+    token: Annotated[str | None, Depends(cookie_scheme)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> models.User:
+
+    if token is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+        )
+    
     user_id = verify_access_token(token)
     if user_id is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token",
-            headers={"WWW-Authenticate": "Bearer"},
         )
 
     try:
@@ -86,7 +98,6 @@ async def get_current_user(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token",
-            headers={"WWW-Authenticate": "Bearer"},
         )
 
     result = await db.execute(
@@ -97,7 +108,6 @@ async def get_current_user(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found",
-            headers={"WWW-Authenticate": "Bearer"},
         )
     return user
 

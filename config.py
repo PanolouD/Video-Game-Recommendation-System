@@ -18,6 +18,10 @@ class Settings(BaseSettings):
 
     max_upload_size_bytes: int = 5 * 1024 * 1024 #5MB
 
+    cookie_name: str = "access_token"
+    cookie_secure: bool = False
+    cookie_samesite: str = "lax"
+
     reset_token_expire_minutes: int = 60
 
     ## Email Configuration Settings

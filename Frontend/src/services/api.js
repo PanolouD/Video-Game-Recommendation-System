@@ -13,33 +13,21 @@ export function getApiAssetUrl(path) {
 
 export async function apiRequest(path, options = {}){ //path ειναι το endpoint που θελουμε να καλεσουμε ανα στιγμη | options ειναι ενα object με τις ρυθμισεις του request (method, body, headers)
    
-    //Παιρνουμε το JWT απο το localStorage
-    const token = localStorage.getItem("accessToken");
    
     const response = await fetch(`${API_BASE_URL}${path}`, { 
         ...options, // Αντιγραφει ολες τις ρυθμισεις του request, οπως method, body και headers στο fetch
 
+        credentials: "include", // στελνει με το request και τα cookies και αποθηκευει cookie που ερχεται απο το backend
         headers:{
             ...options.headers,
-        
-            //Αν υπαρχει token προσθετει το Authorization header
-            ...(token && {
-                Authorization : `Bearer ${token}`,
-            }),
         },    
     });
 
     if (response.status === 204) {
-    return null;
-}
-
-    const contentType = response.headers.get("content-type");
-
-    let data = null;
-
-    if(contentType?.includes("application/json")) { // Με το ? (optional chaining) βοηθαει να μη κρασαρει αν ειναι null η τιμη, και εκτελει την .includes οταν δεν εχουμε null
-        data = await response.json();
+        return null;
     }
+
+    const data = await response.json().catch(() => null);
 
     if(!response.ok) {
         const error = new Error(
@@ -69,9 +57,9 @@ export function registerUser(userData) { //userData = {username,email,password}
 }
 
 export function loginUser(email, password) {
-     const formData = new URLSearchParams(); // What is that?
+     const formData = new URLSearchParams(); // Whμορφοποιει τα δεδομενα σε μορφη query string
 
-     formData.append("username", email); //what are formData
+     formData.append("username", email); 
      formData.append("password", password);
 
      return apiRequest("/api/users/token", {
@@ -83,6 +71,12 @@ export function loginUser(email, password) {
 
         body: formData,
      });
+}
+
+export function logoutUser() {
+    return apiRequest("/api/users/logout", {
+        method: "POST",
+    });
 }
 
 export function getCurrentUser() {
