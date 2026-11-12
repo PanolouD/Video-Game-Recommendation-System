@@ -16,6 +16,7 @@ from fastapi.exception_handlers import http_exception_handler, request_validatio
 from routers import users, games, recommendations, library
 from fastapi.middleware.cors import CORSMiddleware
 from config import settings
+from pathlib import Path
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
@@ -35,6 +36,7 @@ app.add_middleware(
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+Path("media/profile_pics").mkdir(parents=True, exist_ok=True)
 app.mount("/media", StaticFiles(directory="media"), name="media")
 
 ##templates = Jinja2Templates(directory="templates")

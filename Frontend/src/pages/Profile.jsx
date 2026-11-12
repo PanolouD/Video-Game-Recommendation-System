@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PasswordInputIcon from "../components/PasswordInputIcon";
+import { useAuth } from "../Context/AuthContext";
 
 import {
     updateUser,
@@ -17,6 +18,8 @@ import "../css/Profile.css";
 
 function Profile() {
     const navigate = useNavigate();
+
+    const {setCurrentUser, logout} = useAuth();
 
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -86,7 +89,7 @@ function Profile() {
                 }
 
                 if (error.status === 401) {
-                    localStorage.removeItem("accessToken");
+                    setCurrentUser(null);
                     navigate("/login");
                     return;
                 }
@@ -139,7 +142,7 @@ function Profile() {
             event.target.reset();
         } catch (error) {
             if (error.status === 401) {
-                localStorage.removeItem("accessToken");
+                setCurrentUser(null);
                 navigate("/login");
                 return;
             }
@@ -164,7 +167,7 @@ function Profile() {
             const updatedUser = await deleteProfilePicture(user.id);
 
             setUser(updatedUser);
-            window.dispatchEvent(new Event("profileUpdated")); // Η εικονα αλλαζει αμεσως μετα την διαγραφη χωρις refresh
+            setCurrentUser(updatedUser); // Η εικονα αλλαζει αμεσως μετα την διαγραφη χωρις refresh
 
             setPictureMessage("Profile picture removed successfully.");
         } catch (error) {
@@ -195,12 +198,13 @@ function Profile() {
             });
 
             setUser(updatedUser);
+            setCurrentUser(updatedUser); // Ετσι το username του Navbar ενημερωνεται αμεσως
             setUsername(updatedUser.username);
 
             setUsernameMessage("Username updated successfully.");
         } catch (error) {
             if (error.status === 401){
-                localStorage.removeItem("accessToken");
+                setCurrentUser(null);
                 navigate("/login");
                 return;
             }
@@ -260,10 +264,9 @@ function Profile() {
             setDeleteError("");
 
             await deleteAccount(user.id);
-
-            localStorage.removeItem("accessToken");
-
+            await logout();
             navigate("/");
+            
         } catch (error) {
             setDeleteError(error.message || "Could not delete your account.");
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import {loginUser, saveQuestionnaire} from "../services/api";
+import { saveQuestionnaire} from "../services/api";
 import {useAuth} from "../Context/AuthContext";
 import PasswordInputIcon from "../components/PasswordInputIcon";
 
@@ -26,7 +26,7 @@ function Login() {
 
     try{
 
-      await login(email, ppassword);
+      await login(email, password);
 
       const pendingQuestionnaire = sessionStorage.getItem("pendingQuestionnaire");
 

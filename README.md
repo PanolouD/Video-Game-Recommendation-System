@@ -431,7 +431,7 @@ Check the SMTP host, port, username, password, sender address, and TLS configura
 - Saved library entries do not influence the current recommendation score.
 - SMTP settings are required for actual password-reset email delivery.
 - Uploaded profile pictures are stored locally in the `media` directory.
-- Access tokens are stored in browser localStorage in the current implementation.
+- JWT access tokens are stored in HttpOnly cookies and are not accessible to frontend JavaScript.
 - Dependency audit findings require review before production deployment.
 
 This is an academic portfolio project. The local development setup is not a production deployment configuration.

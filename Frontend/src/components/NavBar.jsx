@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import gamepadLogo from "../assets/logo-photos/game-on.jpg";
-import {getApiAssetUrl, getCurrentUser} from "../services/api";
+import { useAuth } from "../Context/AuthContext";
+import {getApiAssetUrl} from "../services/api";
 
 import "../css/NavBar.css";
 
@@ -9,48 +9,10 @@ import "../css/NavBar.css";
 function NavBar(){
 
     const navigate = useNavigate();
-    const location = useLocation();
 
     const {currentUser, authLoading, logout,} = useAuth();
 
     const isLoggedIn = Boolean(currentUser);
-
-        useEffect(() => {
-        let canceled = false;
-
-        async function loadCurrentUser() {
-            if(!isLoggedIn) {
-                setCurrentUser(null);
-                return;
-            }
-            try {
-                const data = await getCurrentUser();
-
-                if(!canceled) {
-                    setCurrentUser(data);
-                }
-            } catch (error) {
-                if(!canceled && error.status === 401) {
-                    localStorage.removeItem("accessToken");
-                    setCurrentUser(null);
-                }
-            }
-        }
-
-        loadCurrentUser();
-
-        function handleProfileUpdated() {
-            loadCurrentUser();
-        }
-
-        window.addEventListener("profileUpdated", handleProfileUpdated);
-
-        return () => {
-            canceled = true;
-
-            window.removeEventListener("profileUpdated", handleProfileUpdated);
-        };
-    }, [isLoggedIn, location.pathname]);
 
     async function handleLogout(){
         await logout();

@@ -216,6 +216,21 @@ function Questionnaire() {
             return;
         }
 
+        if(authLoading){
+                return;
+            }
+
+            if (!currentUser) {
+                sessionStorage.setItem("pendingQuestionnaire", JSON.stringify(answers));
+
+                navigate("/login",{
+                    state: {
+                        message: "Log in to save your preferences and receive recommendations.",
+                    },
+                });
+                return;
+            }
+
         setIsSubmitting(true);
         setSubmissionError("");
 
@@ -227,8 +242,14 @@ function Questionnaire() {
             console.error("Questionnaire submission failed:", error);
 
             if(error.status === 401){ //Αν ο χρήστης δεν ειναι πλεον authenticated, τον στελνουμε πισω στην Login
-                localStorage.removeItem("accessToken");
-                navigate("/login");
+                setCurrentUser(null);
+                sessionStorage.setItem("pendingQuestionnaire", JSON.stringify(answers));
+  
+                navigate("/login", {
+                    state: {
+                        message: "Your session has expired. Log in again.",
+                    },
+                });
                 return;
             }
 
@@ -236,23 +257,8 @@ function Questionnaire() {
                 error.message || "Could not save your preferences."
             );
         } finally {
-            if(authLoading){
-                return;
-            }
-
-            if (!currentUser) {
-                sessionStorage.setItem("pendingQuestionnaire", JSON.stringify(answers));
-
-                navigate("/login",{
-                    state: {
-                        message: "Log in to save your preferences and recieve recommendations.",
-                    },
-                });
-                return;
-            }
+            setIsSubmitting(false);
         }
-
-        console.log(answers);
         
     }
    
