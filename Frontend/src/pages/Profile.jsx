@@ -105,7 +105,7 @@ function Profile() {
         return () => {
             cancelled = true;
         };
-    }, [navigate]);
+    }, [navigate, setCurrentUser]);
 
 
     function handleFileSelection(event) {
