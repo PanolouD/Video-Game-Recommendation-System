@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import {loginUser, saveQuestionnaire} from "../services/api";
+import { saveQuestionnaire} from "../services/api";
+import {useAuth} from "../Context/AuthContext";
 import PasswordInputIcon from "../components/PasswordInputIcon";
 
 import "../css/auth.css"
@@ -15,6 +16,8 @@ function Login() {
 
   const location = useLocation();
 
+  const {login} = useAuth();
+
   const loginMessage = location.state?.message || "";
 
   async function handleSubmit(e) {
@@ -23,10 +26,7 @@ function Login() {
 
     try{
 
-      const data = await loginUser(email, password);
-
-
-      localStorage.setItem("accessToken", data.access_token); //Αποθηκευση του JWT access token  
+      await login(email, password);
 
       const pendingQuestionnaire = sessionStorage.getItem("pendingQuestionnaire");
 

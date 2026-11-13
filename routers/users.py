@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, status, Response, UploadFile, BackgroundTasks
 from sqlalchemy import select, func, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -8,7 +8,7 @@ from sqlalchemy import delete as sql_delete
 import models
 import json
 from database import get_db
-from schemas import UserCreate, UserUpdate, UserPrivate, UserPublic, Token, ChangePasswordRequest, ForgotPasswordRequest, ResetPasswordRequest, UserPreferenceBase
+from schemas import UserCreate, UserUpdate, UserPrivate, UserPublic, ChangePasswordRequest, ForgotPasswordRequest, ResetPasswordRequest, UserPreferenceBase
 from datetime import timedelta, UTC, datetime
 from fastapi.security import OAuth2PasswordRequestForm
 from auth import create_access_token, hash_password, verify_password, CurrentUser, generate_reset_token, hash_reset_token
@@ -61,8 +61,9 @@ async def create_user(user: UserCreate, db: Annotated[AsyncSession, Depends(get_
 #Οτι καναμε στους create_user παραπανω κανουμε και στους υπολοιπους παρακατω.
 
 ## login_for_access_token
-@router.post("/token", response_model=Token)
+@router.post("/token", status_code=status.HTTP_200_OK)
 async def login_for_access_token(
+    response: Response,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
@@ -81,7 +82,6 @@ async def login_for_access_token(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
         )
 
     # Create access token with user id as subject
@@ -90,7 +90,28 @@ async def login_for_access_token(
         data={"sub": str(user.id)},
         expires_delta=access_token_expires,
     )
-    return Token(access_token=access_token, token_type="bearer")
+
+    response.set_cookie(
+        key=settings.cookie_name,
+        value=access_token,
+        httponly=True, # Η JavaScript δεν μπορει να διαβασει το JWT
+        secure=settings.cookie_secure,
+        samesite=settings.cookie_samesite,
+        max_age=settings.access_token_expire_minutes * 60, # καθοριζει για ποση ωρα θα μεινει αποθηκευμενο
+        path="/", # το cookie ισχυει για ολο το backend
+    )
+
+    return {"message": "Login successful"}
+
+## logout
+@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+async def logout(response: Response):
+    response.delete_cookie(
+        key=settings.cookie_name,
+        path="/",
+        secure=settings.cookie_secure,
+        samesite=settings.cookie_samesite,
+    )
 
 ## get_current_user
 @router.get("/me", response_model=UserPrivate)

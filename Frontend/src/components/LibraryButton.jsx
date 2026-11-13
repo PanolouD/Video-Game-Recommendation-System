@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import {Link, useLocation, useNavigate} from "react-router-dom";
+import { useLocation, useNavigate} from "react-router-dom";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { useAuth } from "../Context/AuthContext";
 
 import { addGameToLibrary, getLibraryGameStatus, removeGameFromLibrary,} from "../services/api";
 
@@ -12,8 +13,8 @@ function LibraryButton({ gameId, initialIsSaved = null, variant = "default", onS
     const navigate = useNavigate();
     const location = useLocation();
 
-    const token = localStorage.getItem("accessToken");
-    const isLoggedIn = Boolean(token);
+    const { currentUser, authLoading, setCurrentUser} = useAuth();
+    const isLoggedIn = Boolean(currentUser);
 
     const [isSaved, setIsSaved] = useState(initialIsSaved === true);
     const [loading, setLoading] = useState(initialIsSaved === null);
@@ -103,14 +104,14 @@ function LibraryButton({ gameId, initialIsSaved = null, variant = "default", onS
                 return;
             }
 
-            if (requestError.status === 404 && isSaved && isSaved) {
+            if (requestError.status === 404 && isSaved) {
                 setIsSaved(false);
                 onSaveChange?.(false);
                 return;
             }
 
             if(requestError.status === 401) {
-                localStorage.removeItem("accessToken");
+                setCurrentUser(null);
 
                 navigate("/login", {
                     state: {
@@ -140,7 +141,7 @@ function LibraryButton({ gameId, initialIsSaved = null, variant = "default", onS
                 ].filter(Boolean).join(" ")}        
             
                 onClick={handleLibraryClick}
-                disabled={(isLoggedIn && loading) || !gameId}
+                disabled={authLoading || (isLoggedIn || loading) || !gameId}
 
                 aria-label={
                     isSaved ? "Remove from Library" : "Add to Library"

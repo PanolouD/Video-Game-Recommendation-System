@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { saveQuestionnaire } from "../services/api";
+import { useAuth } from "../Context/AuthContext";
 import "../css/Questionnaire.css";
 
 const genreOptions = [
@@ -86,6 +87,8 @@ function Questionnaire() {
 
     const navigate = useNavigate();
 
+    const { currentUser, authLoading, setCurrentUser} = useAuth();
+
     const questions = [
         {
             id: "preferred_genres",
@@ -154,7 +157,6 @@ function Questionnaire() {
     //States για loading και API error
     const [isSubmitting, setIsSubmitting] = useState(false); // Περιμενουμε την αποθηκευση στο backend
     const [submissionError, setSubmissionError] = useState(""); // Εμφανίζει λάθος οταν οι απαντησεις ειναι συμπληρωμένες, αλλα απέτυχε το request προς το backend
-
     const question = questions[currentQuestion];
 
     const allQuestionsAnswered = questions.every( // Η every επιστρεφει true μόνο αν καθε ερώτηση έχει τουλάχιστον μια απάντηση
@@ -214,22 +216,20 @@ function Questionnaire() {
             return;
         }
 
-        const token = localStorage.getItem("accessToken");
+        if(authLoading){
+                return;
+            }
 
-        if (!token) { // Ετσι το frontend δεν επιχειρει καν να αποθηκευσει χωρις token
-            
-            sessionStorage.setItem("pendingQuestionnaire", JSON.stringify(answers));
-            
-            navigate("/login", {
-                state: {
-                    from: "/questionnaire",
-                    message:
-                        "Log in to save your preferences and receive recommendations.",
-                },
-            });
+            if (!currentUser) {
+                sessionStorage.setItem("pendingQuestionnaire", JSON.stringify(answers));
 
-            return;
-        }
+                navigate("/login",{
+                    state: {
+                        message: "Log in to save your preferences and receive recommendations.",
+                    },
+                });
+                return;
+            }
 
         setIsSubmitting(true);
         setSubmissionError("");
@@ -242,8 +242,14 @@ function Questionnaire() {
             console.error("Questionnaire submission failed:", error);
 
             if(error.status === 401){ //Αν ο χρήστης δεν ειναι πλεον authenticated, τον στελνουμε πισω στην Login
-                localStorage.removeItem("accessToken");
-                navigate("/login");
+                setCurrentUser(null);
+                sessionStorage.setItem("pendingQuestionnaire", JSON.stringify(answers));
+  
+                navigate("/login", {
+                    state: {
+                        message: "Your session has expired. Log in again.",
+                    },
+                });
                 return;
             }
 
@@ -253,8 +259,6 @@ function Questionnaire() {
         } finally {
             setIsSubmitting(false);
         }
-
-        console.log(answers);
         
     }
    

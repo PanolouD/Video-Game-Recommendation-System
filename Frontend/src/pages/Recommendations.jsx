@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 import GameDetailsCard from "../components/GameDetailsCard";
 import { getRecommendations } from "../services/api";
+import { useAuth } from "../Context/AuthContext";
 
 import "../css/Recommendations.css";
 
@@ -13,6 +14,7 @@ function Recommendations() {
 
     const navigate = useNavigate();
 
+    const { setCurrentUser } = useAuth();
     const [recommendations, setRecommendations] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
@@ -38,8 +40,13 @@ function Recommendations() {
           console.error("Could not load recommendations:", requestError);
 
           if (requestError.status === 401) {
-            localStorage.removeItem("accessToken");
-            navigate("/login");
+            setCurrentUser(null);
+
+            navigate("/login",{
+              state: {
+                message: "Log in to view your recommendations.",
+              },
+            });
             return;
           }
           if (requestError.status === 404 && requestError.message?.toLowerCase().includes("questionnaire")){
@@ -56,7 +63,7 @@ function Recommendations() {
       }
 
       loadRecommendations();
-    }, [navigate]);
+    }, [navigate, setCurrentUser]);
 
     function handlePrevious() {
       setCurrentIndex((previousIndex) =>
