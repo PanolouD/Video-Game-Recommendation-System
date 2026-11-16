@@ -3,7 +3,9 @@ from io import BytesIO #Για να δουλευουμε με image bytes στη
 from pathlib import Path #Για file operations αντί για string manipulation.
 from PIL import Image, ImageOps # Το Pillow με το main image functionality και ImageOps για image operations.
 
-PROFILE_PICS_DIR = Path("media/profile_pics")
+BASE_DIR = Path(__file__).resolve().parent
+
+PROFILE_PICS_DIR = (BASE_DIR / "media" / "profile_pics")
 
 ## Process Image Function
 def process_profile_image(content: bytes) -> str:

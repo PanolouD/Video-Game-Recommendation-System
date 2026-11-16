@@ -34,10 +34,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+BASE_DIR = Path(__file__).resolve().parent
 
-Path("media/profile_pics").mkdir(parents=True, exist_ok=True)
-app.mount("/media", StaticFiles(directory="media"), name="media")
+STATIC_DIR = BASE_DIR / "static"
+MEDIA_DIR = BASE_DIR / "media"
+PROFILE_PICS_DIR = MEDIA_DIR / "profile_pics"
+
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
+PROFILE_PICS_DIR.mkdir(parents=True, exist_ok=True)
+
+app.mount("/media", StaticFiles(directory=str(MEDIA_DIR)), name="media")
 
 ##templates = Jinja2Templates(directory="templates")
 

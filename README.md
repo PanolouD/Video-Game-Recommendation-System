@@ -51,43 +51,49 @@ The following structure highlights the main application files:
 
 ```text
 project-root/
-├── alembic/                 # Database migrations
-├── alembic.ini              # Alembic configuration
-├── Frontend/                # React application
+├── backend/
+│   ├── alembic/
+│   ├── routers/
+│   ├── media/
+│   │   └── profile_pics/
+│   ├── static/
+│   │   └── profile_pics/
+│   │       └── default.jpg
+│   ├── templates/
+│   ├── alembic.ini
+│   ├── auth.py
+│   ├── config.py
+│   ├── database.py
+│   ├── email_utils.py
+│   ├── igdb_client.py
+│   ├── image_utils.py
+│   ├── main.py
+│   ├── models.py
+│   ├── recommender.py
+│   ├── requirements.txt
+│   ├── schemas.py
+│   ├── seed_games.py
+│   └── .env.example
+│
+├── frontend/
 │   ├── public/
-│   │   └── index.html
 │   ├── src/
 │   │   ├── components/
+│   │   ├── Context/
 │   │   ├── pages/
 │   │   ├── css/
 │   │   └── services/
 │   │       └── api.js
 │   ├── package.json
 │   └── package-lock.json
-├── media/
-│   └── profile_pics/        # Uploaded profile pictures; not committed
-├── routers/                 # FastAPI API routes
-├── static/
-│   └── profile_pics/
-│       └── default.jpg      # Default profile picture
-├── auth.py                  # Authentication and token functions
-├── config.py                # Environment-based configuration
-├── database.py              # Database connection and sessions
-├── email_utils.py           # Password-reset email delivery
-├── image_utils.py           # Profile-image processing
-├── igdb_client.py           # IGDB API client
-├── main.py                  # FastAPI application entry point
-├── models.py                # SQLAlchemy models
-├── recommender.py           # Recommendation algorithm
-├── requirements.txt         # Python dependencies
-├── schemas.py               # Pydantic schemas
-├── seed_games.py            # Initial game-data import
-├── .env.example             # Configuration template without real credentials
+│
 ├── .gitignore
+├── .gitattributes
+├── LICENSE
 └── README.md
 ```
 
-Uploaded user pictures should not be committed to the repository. The default profile picture at `static/profile_pics/default.jpg` is an application asset and must be retained.
+Uploaded user pictures should not be committed to the repository. The default profile picture at `backend/static/profile_pics/default.jpg` is an application asset and must be retained.
 
 ## Prerequisites
 
@@ -107,17 +113,19 @@ You will also need:
 
 The commands below use Windows PowerShell.
 
-Download or clone the repository, then open PowerShell in the project root: the directory containing `main.py`, `config.py`, and `Frontend/`.
+Download or clone the repository, then open PowerShell in the project root: the directory containing the `backend/` and `frontend/` folders.
 
 ## Environment Configuration
 
-Create your local `.env` file by copying the supplied example:
+Create the backend's local `.env` file by copying the supplied example:
 
 ```powershell
-Copy-Item .env.example .env
+Copy-Item .\backend\.env.example .\backend\.env
 ```
 
-The `.env` file must be in the project root, next to `config.py`.
+The `.env` file must be inside the `backend` directory, next to `config.py`.
+
+
 
 Example configuration:
 
@@ -162,7 +170,7 @@ Never commit the real `.env` file, database passwords, SMTP credentials, or IGDB
 
 The frontend defaults to the backend at `http://localhost:8000`.
 
-To configure another backend address, create `Frontend/.env`:
+To configure another backend address, create `frontend/.env`:
 
 ```dotenv
 REACT_APP_API_URL=http://localhost:8000
@@ -178,7 +186,7 @@ Using pgAdmin or PostgreSQL tools:
 
 1. Create a PostgreSQL login role for the application.
 2. Create an empty database owned by that role.
-3. Update `DATABASE_URL` in `.env` with the matching credentials and database name.
+3. Update `DATABASE_URL` in `backend/.env` with the matching credentials and database name.
 
 For example, when connected as a PostgreSQL user with the required permissions:
 
@@ -201,9 +209,10 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 ```
 
-### 2. Install Dependencies
+### 2. Enter the Backend Directory and Install Dependencies
 
 ```powershell
+cd backend
 python -m pip install -r requirements.txt
 ```
 
@@ -278,7 +287,7 @@ The seeding command is not required every time the backend starts. Re-running th
 Keep the backend running and open a second PowerShell window in the project root:
 
 ```powershell
-cd Frontend
+cd frontend
 npm ci
 npm start
 ```
@@ -301,13 +310,14 @@ Start the backend from the project root:
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
+cd backend
 python -m uvicorn main:app --reload --port 8000
 ```
 
 Then start the frontend in a second terminal, also starting from the project root:
 
 ```powershell
-cd Frontend
+cd frontend
 npm start
 ```
 
@@ -411,7 +421,7 @@ The access token may be missing or expired. Sign in again.
 Verify that the following file exists:
 
 ```text
-static/profile_pics/default.jpg
+backend/static/profile_pics/default.jpg
 ```
 
 ### Password-Reset Emails Are Not Delivered
@@ -430,7 +440,7 @@ Check the SMTP host, port, username, password, sender address, and TLS configura
 - The current algorithm does not use collaborative filtering or other users' behavior.
 - Saved library entries do not influence the current recommendation score.
 - SMTP settings are required for actual password-reset email delivery.
-- Uploaded profile pictures are stored locally in the `media` directory.
+- Uploaded profile pictures are stored locally in the `backend/media` directory.
 - JWT access tokens are stored in HttpOnly cookies and are not accessible to frontend JavaScript.
 - Dependency audit findings require review before production deployment.
 

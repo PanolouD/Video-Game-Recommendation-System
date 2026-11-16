@@ -129,6 +129,8 @@ celerybeat.pid
 
 # Environments
 .env
+.env.*
+!.env.example
 .venv
 env/
 venv/
@@ -181,8 +183,10 @@ cython_debug/
 .cursorindexingignore
 
 # Media 
-media/*
-!media/.gitkeep
-!media/profile_pics/
-media/profile_pics/*
-!media/profile_pics/.gitkeep
+backend/media/*
+!backend/media/.gitkeep
+!backend/media/profile_pics/
+backend/media/profile_pics/*
+!backend/media/profile_pics/.gitkeep
+
+backend/logs/
