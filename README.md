@@ -115,6 +115,70 @@ The commands below use Windows PowerShell.
 
 Download or clone the repository, then open PowerShell in the project root: the directory containing the `backend/` and `frontend/` folders.
 
+## Docker Setup
+
+Docker is the recommended way to run the complete application locally.
+
+### Requirements
+
+- Docker Desktop with Docker Compose
+- IGDB API credentials
+- SMTP credentials if password-reset email delivery is required
+
+### 1. Create the Environment Files
+
+From the project root:
+
+```powershell
+Copy-Item .env.example .env
+Copy-Item .\backend\.env.example .\backend\.env
+```
+
+Replace the placeholder values in both files with the required local configuration. Never commit the real `.env` files.
+
+### 2. Build and Start the Application
+
+```powershell
+docker compose up -d --build
+```
+
+Docker Compose starts:
+
+- PostgreSQL
+- Alembic database migrations
+- FastAPI backend
+- React frontend served by Nginx
+
+Database migrations run automatically before the backend starts.
+
+### 3. Import Game Data
+
+During the initial setup, run:
+
+```powershell
+docker compose exec backend python seed_games.py
+```
+
+This command requires valid IGDB credentials and imports the game catalog into PostgreSQL. It is not required on every startup.
+
+### 4. Open the Application
+
+| Service | URL |
+| --- | --- |
+| Frontend | http://localhost:3000 |
+| Backend | http://localhost:8000 |
+| API documentation | http://localhost:8000/docs |
+
+### Stopping the Application
+
+```powershell
+docker compose down
+```
+
+The PostgreSQL data and uploaded profile pictures remain stored in Docker volumes.
+
+Do not use `docker compose down -v` unless you intentionally want to delete the Docker database and uploaded media.
+
 ## Environment Configuration
 
 Create the backend's local `.env` file by copying the supplied example:

@@ -26,9 +26,13 @@ async def lifespan(_app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+@app.get("/health", tags=["Health"])
+async def health_check():
+    return {"status": "ok"}
+
 app.add_middleware(
     CORSMiddleware, # Περιλαμβανει HTTP request/responses για να επικοινωνει ο browser
-    allow_origins=[settings.frontend_url, "http://127.0.0.1:3000",], #Επιτρεπει στο Frontend Που τρεχει στο Post 3000 να κανει request εδω
+    allow_origins=[settings.frontend_url.rstrip("/")], #Επιτρεπει στο Frontend Που τρεχει στο Post 3000 να κανει request εδω
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

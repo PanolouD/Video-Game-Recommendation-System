@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     mail_from: str = "noreply@example.com"
     mail_use_tls: bool = True
 
-    frontend_url: str = "http://localhost:3000"
+    frontend_url: str
 
     igdb_client_id: str
     igdb_client_secret: SecretStr #Το secret εμποδιζει την τυχαια εμφανιση ολοκληρου του secret 
